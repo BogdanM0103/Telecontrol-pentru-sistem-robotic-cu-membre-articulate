@@ -5,6 +5,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <cstring>
+
 #define J2L 58
 #define J3L 138
 #define YRest 58
@@ -78,34 +79,33 @@ void posToAngle(double x, double y, double z) {
 
 }
 
-void moveServo(int channel, int pulseWidth) {
-    if (serialPortFD == -1) {
-        std::cerr << "Error: Serial port is not open.\n";
-        return;
-    }
-
-    if (channel < 0 || channel > 31 || pulseWidth < 500 || pulseWidth > 2500) {
-        std::cerr << "Invalid channel or pulse width.\n";
-        return;
-    }
-
-    // Create command string: #<channel>P<pulseWidth>\r
-    std::string command = "#" + std::to_string(channel) + "P" + std::to_string(pulseWidth) + "\r";
-
-    ssize_t bytesWritten = write(serialPortFD, command.c_str(), command.length());
-    if (bytesWritten < 0) {
-        std::cerr << "Failed to write to serial port.\n";
-    } else {
-        std::cout << "Sent: " << command;
-    }
-}
-
 int degreesToPulseWidth(int degrees) {
     if (degrees < 0) degrees = 0;
     if (degrees > 180) degrees = 180;
 
     // Map 0° -> 500 µs, 180° -> 2500 µs
     return 500 + (degrees * (2000.0 / 180.0));
+}
+
+void moveServo(int channel, int degrees) {
+    if (serialPortFD == -1) {
+        std::cerr << "Serial port not open." << std::endl;
+        return;
+    }
+
+    if (channel < 0 || channel > 31) {
+        std::cerr << "Invalid channel number." << std::endl;
+        return;
+    }
+
+    if (degrees < 0) degrees = 0;
+    if (degrees > 180) degrees = 180;
+
+    int pulseWidth = 500 + (int)(degrees * (2000.0 / 180.0)); // map 0–180° to 500–2500μs
+    char command[32];
+    snprintf(command, sizeof(command), "#%dP%dT100\r", channel, pulseWidth);
+
+    write(serialPortFD, command, strlen(command));
 }
 
 int main() {
@@ -115,6 +115,7 @@ int main() {
     point.z = 90;
     posToAngle(point.x, point.y, point.z);
     openSerialPort("/dev/ttyUSB0", 115200);
+    moveServo(0, 80);
     closeSerialPort();
     return 0;
 }
