@@ -1,7 +1,10 @@
 #include <iostream>
 #include <cmath>
 #include <array>
-
+#include <termios.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <cstring>
 #define J2L 58
 #define J3L 138
 #define YRest 58
@@ -15,6 +18,46 @@ struct Point {
     double y;
     double z;
 };
+
+int serialPortFD = -1;
+
+void openSerialPort(const char* port, int baudRate) {
+    serialPortFD = open(port, O_RDWR | O_NOCTTY | O_NDELAY);
+
+    if (serialPortFD == -1) {
+        std::cerr << "Failed to open port: " << port << std::endl;
+        return;
+    }
+
+    termios options;
+    tcgetattr(serialPortFD, &options);
+
+    cfsetispeed(&options, baudRate);
+    cfsetospeed(&options, baudRate);
+
+    options.c_cflag |= (CLOCAL | CREAD);
+    options.c_cflag &= ~PARENB;
+    options.c_cflag &= ~CSTOPB;
+    options.c_cflag &= ~CSIZE;
+    options.c_cflag |= CS8;
+    options.c_cflag &= ~CRTSCTS;
+
+    options.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
+    options.c_iflag &= ~(IXON | IXOFF | IXANY);
+    options.c_oflag &= ~OPOST;
+
+    tcsetattr(serialPortFD, TCSANOW, &options);
+
+    std::cout << "Serial port opened: " << port << std::endl;
+}
+
+void closeSerialPort() {
+    if (serialPortFD != -1) {
+        close(serialPortFD);
+        std::cout << "Serial port closed." << std::endl;
+        serialPortFD = -1;
+    }
+}
 
 void posToAngle(double x, double y, double z) {
     y += YRest;
@@ -35,12 +78,43 @@ void posToAngle(double x, double y, double z) {
 
 }
 
+void moveServo(int channel, int pulseWidth) {
+    if (serialPortFD == -1) {
+        std::cerr << "Error: Serial port is not open.\n";
+        return;
+    }
+
+    if (channel < 0 || channel > 31 || pulseWidth < 500 || pulseWidth > 2500) {
+        std::cerr << "Invalid channel or pulse width.\n";
+        return;
+    }
+
+    // Create command string: #<channel>P<pulseWidth>\r
+    std::string command = "#" + std::to_string(channel) + "P" + std::to_string(pulseWidth) + "\r";
+
+    ssize_t bytesWritten = write(serialPortFD, command.c_str(), command.length());
+    if (bytesWritten < 0) {
+        std::cerr << "Failed to write to serial port.\n";
+    } else {
+        std::cout << "Sent: " << command;
+    }
+}
+
+int degreesToPulseWidth(int degrees) {
+    if (degrees < 0) degrees = 0;
+    if (degrees > 180) degrees = 180;
+
+    // Map 0° -> 500 µs, 180° -> 2500 µs
+    return 500 + (degrees * (2000.0 / 180.0));
+}
+
 int main() {
     struct Point point;
     point.x = 0;
-    point.y = 0;
-    point.z = 0;
-
+    point.y = 35;
+    point.z = 90;
     posToAngle(point.x, point.y, point.z);
+    openSerialPort("/dev/ttyUSB0", 115200);
+    closeSerialPort();
     return 0;
 }
