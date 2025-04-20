@@ -18,7 +18,13 @@ struct Point {
     double x;
     double y;
     double z;
-};
+}Point;
+
+struct Angles {
+    double J1;
+    double J2;
+    double J3;
+}Angles;
 
 int serialPortFD = -1;
 
@@ -60,7 +66,11 @@ void closeSerialPort() {
     }
 }
 
-void posToAngle(double x, double y, double z) {
+struct Angles posToAngle(struct Point& p) {
+    double x = p.x;
+    double y = p.y;
+    double z = p.z;
+
     y += YRest;
     z += ZRest;
 
@@ -77,6 +87,11 @@ void posToAngle(double x, double y, double z) {
     cout << 90 + J2 << endl;
     cout << J3 + 2 << endl;
 
+    struct Angles a;
+    a.J1 = 90 - J1;
+    a.J2 = 90 + J2;
+    a.J3 = J3 + 2;
+    return a;
 }
 
 int degreesToPulseWidth(int degrees) {
@@ -113,9 +128,11 @@ int main() {
     point.x = 0;
     point.y = 35;
     point.z = 90;
-    posToAngle(point.x, point.y, point.z);
+    struct Angles a = posToAngle(point);
     openSerialPort("/dev/ttyUSB0", 115200);
-    moveServo(0, 80);
+    cout << a.J1 << endl;
+    cout << a.J2 << endl;
+    cout << a.J3 << endl;
     closeSerialPort();
     return 0;
 }
