@@ -12,6 +12,9 @@
 #define ZRest -138
 #define PI 3.14159265
 
+const double baseOffsetX =  100;  // forward from center
+const double baseOffsetY =  60;   // to the right of center
+
 using namespace std;
 
 struct Point {
@@ -66,6 +69,15 @@ void closeSerialPort() {
     }
 }
 
+// Transforms global (robot-centered) foot position into leg-local position
+struct Point globalToLocal(struct Point globalFootPos, double baseX, double baseY) {
+    struct Point local;
+    local.x = globalFootPos.x - baseX;
+    local.y = globalFootPos.y - baseY;
+    local.z = globalFootPos.z;
+    return local;
+}
+
 struct Angles posToAngle(struct Point& p) {
     double x = p.x;
     double y = p.y;
@@ -75,12 +87,12 @@ struct Angles posToAngle(struct Point& p) {
     z += ZRest;
 
     // CALCULATE INVERSE KINEMATIC SOLUTION
-    double J1 = atan(x / y) * (180 / PI);
+    double J1 = atan2(x, y) * (180 / PI);
     double H = sqrt((y * y) + (x * x));
     double L = sqrt((H * H) + (z * z));
     double J3 = acos(   ((J2L * J2L) + (J3L * J3L) - (L * L))   /   (2 * J2L * J3L)   ) * (180 / PI);
     double B = acos(   ((L * L) + (J2L * J2L) - (J3L * J3L))   /   (2 * L * J2L)   ) * (180 / PI);
-    double A = atan(z / H) * (180 / PI);  // BECAUSE Z REST IS NEGATIVE, THIS RETURNS A NEGATIVE VALUE
+    double A = atan2(z, H) * (180 / PI);  // BECAUSE Z REST IS NEGATIVE, THIS RETURNS A NEGATIVE VALUE
     double J2 = (B + A);  // BECAUSE 'A' IS NEGATIVE AT REST WE NEED TO INVERT '-' TO '+'
 
     /*
@@ -125,19 +137,49 @@ void moveServo(int channel, int degrees) {
     write(serialPortFD, command, strlen(command));
 }
 
+struct Point HL;
+struct Point ML;
+struct Point LL;
+struct Point HR;
+struct Point MR;
+struct Point LR;
+
+void assignCoordinatesCoxa() {
+    HL.x = -70;
+    HL.y = 121.24;
+
+    ML.x = -140;
+    ML.y = 0;
+
+    LL.x = -70;
+    LL.y = -121.24;
+
+    HR.x = 70;
+    HR.y = 121.24;
+
+    MR.x = 140;
+    MR.y = 0;
+
+    LR.x = -70;
+    LR.y = 121.24;
+}
+
 int main() {
+
+    assignCoordinatesCoxa();
+
     struct Point point;
     point.x = 0;
-    point.y = 0;
+    point.y = 40;
     point.z = 0;
     struct Angles a = posToAngle(point);
     openSerialPort("/dev/ttyUSB0", 115200);
     cout << a.J1 << endl;
     cout << a.J2 << endl;
     cout << a.J3 << endl;
-    moveServo(0, a.J1);
-    moveServo(1, a.J2);
-    moveServo(2, a.J3);
+    moveServo(8, a.J1);
+    moveServo(9, a.J2);
+    moveServo(10, a.J3);
     closeSerialPort();
     return 0;
 }
