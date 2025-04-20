@@ -83,9 +83,11 @@ struct Angles posToAngle(struct Point& p) {
     double A = atan(z / H) * (180 / PI);  // BECAUSE Z REST IS NEGATIVE, THIS RETURNS A NEGATIVE VALUE
     double J2 = (B + A);  // BECAUSE 'A' IS NEGATIVE AT REST WE NEED TO INVERT '-' TO '+'
 
+    /*
     cout << 90 - J1 << endl;
     cout << 90 + J2 << endl;
     cout << J3 + 2 << endl;
+    */
 
     struct Angles a;
     a.J1 = 90 - J1;
@@ -126,13 +128,16 @@ void moveServo(int channel, int degrees) {
 int main() {
     struct Point point;
     point.x = 0;
-    point.y = 35;
-    point.z = 90;
+    point.y = 0;
+    point.z = 0;
     struct Angles a = posToAngle(point);
     openSerialPort("/dev/ttyUSB0", 115200);
     cout << a.J1 << endl;
     cout << a.J2 << endl;
     cout << a.J3 << endl;
+    moveServo(0, a.J1);
+    moveServo(1, a.J2);
+    moveServo(2, a.J3);
     closeSerialPort();
     return 0;
 }
