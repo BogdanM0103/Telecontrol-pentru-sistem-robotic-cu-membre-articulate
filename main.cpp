@@ -13,9 +13,6 @@
 #define ZRest -138
 #define PI 3.14159265
 
-const double baseOffsetX =  100;  // forward from center
-const double baseOffsetY =  60;   // to the right of center
-
 using namespace std;
 
 struct Point {
@@ -77,6 +74,14 @@ struct Point globalToLocal(struct Point globalFootPos, double baseX, double base
     local.y = globalFootPos.y - baseY;
     local.z = globalFootPos.z;
     return local;
+}
+
+struct Point localToGlobal(const struct Point& localFootPos, double baseX, double baseY) {
+    struct Point global;
+    global.x = localFootPos.x + baseX;
+    global.y = localFootPos.y + baseY;
+    global.z = localFootPos.z;
+    return global;
 }
 
 struct Angles posToAngle(struct Point& p) {
@@ -142,7 +147,7 @@ void moveServo(int channel, int degrees) {
 
     //Check Femur degrees
     if (channel == 1 || channel == 5 || channel == 9 || channel == 117 || channel == 21 || channel == 25) {
-        if (degrees < 55 || degrees > 150) {
+        if (degrees < 55 || degrees > 130) {
             std::cerr << "Invalid degrees." << std::endl;
             return;
         }
@@ -162,6 +167,17 @@ void moveServo(int channel, int degrees) {
     snprintf(command, sizeof(command), "#%dP%dT100\r", channel, pulseWidth);
 
     write(serialPortFD, command, strlen(command));
+}
+
+void printLegAngles(const struct Point& legBase, const struct Point& globalTarget, const std::string& legName) {
+    struct Point localTarget = globalToLocal(globalTarget, legBase.x, legBase.y);
+    struct Angles angles = posToAngle(localTarget);
+
+    cout << "Leg: " << legName << endl;
+    cout << "  J1 (Coxa)  = " << angles.J1 << "°" << endl;
+    cout << "  J2 (Femur) = " << angles.J2 << "°" << endl;
+    cout << "  J3 (Tibia) = " << angles.J3 << "°" << endl;
+    cout << "-----------------------------" << endl;
 }
 
 struct Point HL;
@@ -191,21 +207,62 @@ void assignCoordinatesCoxa() {
     LR.y = 121.24;
 }
 
+void animateWalkingStepLocal(const struct Point& coxa, const std::string& legName,
+                             int coxaChannel, int femurChannel, int tibiaChannel) {
+    std::cout << "Walking step animation for leg: " << legName << "\n";
+
+    const double stepLength = 60;   // mm
+    const double liftHeight = 40;   // mm
+    const double baseZ = -80;       // ground level
+    const double stepY = -40;       // fixed sideways position
+    const int steps = 20;
+
+    for (int i = 0; i <= steps; ++i) {
+        double t = (double)i / steps;
+        struct Point localFoot;
+
+        if (t <= 0.5) {
+            // Swing phase: forward + arc
+            double swingT = t * 2;
+            localFoot.x = -stepLength / 2 + swingT * stepLength;
+            localFoot.z = baseZ + liftHeight * (1 - pow(2 * swingT - 1, 2)); // parabola
+        } else {
+            // Stance phase: flat backward
+            double stanceT = (t - 0.5) * 2;
+            localFoot.x = stepLength / 2 - stanceT * stepLength;
+            localFoot.z = baseZ;
+        }
+
+        localFoot.y = stepY;
+
+        struct Angles a = posToAngle(localFoot);
+
+        // Move the servos
+        moveServo(coxaChannel, static_cast<int>(a.J1));
+        moveServo(femurChannel, static_cast<int>(a.J2));
+        moveServo(tibiaChannel, static_cast<int>(a.J3));
+
+        // Print debug info
+        std::cout << "[" << legName << " | Step " << i << "] ";
+        std::cout << "Local: (" << localFoot.x << ", " << localFoot.y << ", " << localFoot.z << ") ";
+        std::cout << "| Angles → J1: " << a.J1 << "°, J2: " << a.J2 << "°, J3: " << a.J3 << "°\n";
+
+        usleep(100 * 1000); // 100 ms delay between steps for animation pacing
+    }
+
+    std::cout << "Finished step cycle for leg: " << legName << "\n\n";
+}
+
+
+
 int main() {
-
     assignCoordinatesCoxa();
+    openSerialPort("/dev/ttyUSB0", B115200);
 
-    struct Point point;
-    point.x = 0;
-    point.y = -40;
-    point.z = 0;
-    struct Angles a = posToAngle(point);
-    openSerialPort("/dev/ttyUSB0", 115200);
-    cout << a.J1 << endl;
-    cout << a.J2 << endl;
-    cout << a.J3 << endl;
-    moveServo(22, 160);
-    //moveServo(10, a.J3);
+    // Animate HR leg — replace channels with your actual config
+    while (true) {
+        animateWalkingStepLocal(HR, "HR", 16, 17, 18);
+    }
     closeSerialPort();
     return 0;
 }
