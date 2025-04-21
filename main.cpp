@@ -131,8 +131,31 @@ void moveServo(int channel, int degrees) {
         return;
     }
 
-    if (degrees < 0) degrees = 0;
-    if (degrees > 180) degrees = 180;
+
+    //Check Coxa degrees
+    if (channel == 0 || channel == 4 || channel == 8 || channel == 16 || channel == 20 || channel == 24) {
+        if (degrees < 10 || degrees > 160) {
+            std::cerr << "Invalid degrees." << std::endl;
+            return;
+        }
+    }
+
+    //Check Femur degrees
+    if (channel == 1 || channel == 5 || channel == 9 || channel == 117 || channel == 21 || channel == 25) {
+        if (degrees < 55 || degrees > 150) {
+            std::cerr << "Invalid degrees." << std::endl;
+            return;
+        }
+    }
+
+    //Check Tibia degrees
+    if (channel == 1 || channel == 5 || channel == 9 || channel == 117 || channel == 21 || channel == 25) {
+        if (degrees < 60 || degrees > 160) {
+            std::cerr << "Invalid degrees." << std::endl;
+            return;
+        }
+    }
+
 
     int pulseWidth = 500 + (int)(degrees * (2000.0 / 180.0)); // map 0–180° to 500–2500μs
     char command[32];
@@ -181,9 +204,8 @@ int main() {
     cout << a.J1 << endl;
     cout << a.J2 << endl;
     cout << a.J3 << endl;
-    moveServo(8, a.J1);
-    moveServo(9, a.J2);
-    moveServo(10, a.J3);
+    moveServo(22, 160);
+    //moveServo(10, a.J3);
     closeSerialPort();
     return 0;
 }
