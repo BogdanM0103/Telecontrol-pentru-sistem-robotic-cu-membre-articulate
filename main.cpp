@@ -207,50 +207,25 @@ void assignCoordinatesCoxa() {
     LR.y = 121.24;
 }
 
-void animateWalkingStepLocal(const struct Point& coxa, const std::string& legName,
-                             int coxaChannel, int femurChannel, int tibiaChannel) {
-    std::cout << "Walking step animation for leg: " << legName << "\n";
+struct Point legPath(float phase, float stepLength = 30.0f, float liftHeight = 30.0f) {
+    struct Point pos;
+    float halfStep = stepLength / 2.0f;
 
-    const double stepLength = 60;   // mm
-    const double liftHeight = 40;   // mm
-    const double baseZ = -80;       // ground level
-    const double stepY = -40;       // fixed sideways position
-    const int steps = 20;
-
-    for (int i = 0; i <= steps; ++i) {
-        double t = (double)i / steps;
-        struct Point localFoot;
-
-        if (t <= 0.5) {
-            // Swing phase: forward + arc
-            double swingT = t * 2;
-            localFoot.x = -stepLength / 2 + swingT * stepLength;
-            localFoot.z = baseZ + liftHeight * (1 - pow(2 * swingT - 1, 2)); // parabola
-        } else {
-            // Stance phase: flat backward
-            double stanceT = (t - 0.5) * 2;
-            localFoot.x = stepLength / 2 - stanceT * stepLength;
-            localFoot.z = baseZ;
-        }
-
-        localFoot.y = stepY;
-
-        struct Angles a = posToAngle(localFoot);
-
-        // Move the servos
-        moveServo(coxaChannel, static_cast<int>(a.J1));
-        moveServo(femurChannel, static_cast<int>(a.J2));
-        moveServo(tibiaChannel, static_cast<int>(a.J3));
-
-        // Print debug info
-        std::cout << "[" << legName << " | Step " << i << "] ";
-        std::cout << "Local: (" << localFoot.x << ", " << localFoot.y << ", " << localFoot.z << ") ";
-        std::cout << "| Angles → J1: " << a.J1 << "°, J2: " << a.J2 << "°, J3: " << a.J3 << "°\n";
-
-        usleep(100 * 1000); // 100 ms delay between steps for animation pacing
+    if (phase < 0.5f) {
+        // === STANCE PHASE ===
+        float t = phase / 0.5f; // [0, 1]
+        pos.x = (1.0f - t) * halfStep + t * (-halfStep); // front to back
+        pos.z = 0.0f; // on the ground
+    } else {
+        // === SWING PHASE ===
+        float t = (phase - 0.5f) / 0.5f; // [0, 1]
+        pos.x = (-halfStep) + t * stepLength; // back to front
+        pos.z = liftHeight * std::sin(M_PI * t); // smooth lift and drop
     }
 
-    std::cout << "Finished step cycle for leg: " << legName << "\n\n";
+    pos.y = 0.0f; // No side motion for this basic path
+
+    return pos;
 }
 
 
@@ -259,10 +234,8 @@ int main() {
     assignCoordinatesCoxa();
     openSerialPort("/dev/ttyUSB0", B115200);
 
-    // Animate HR leg — replace channels with your actual config
-    while (true) {
-        animateWalkingStepLocal(HR, "HR", 16, 17, 18);
-    }
+
+
     closeSerialPort();
     return 0;
 }
