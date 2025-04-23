@@ -13,6 +13,9 @@
 #define ZRest -138
 #define PI 3.14159265
 
+#include <thread>
+#include <vector>
+
 #include "Serial.h"
 
 using namespace std;
@@ -47,9 +50,9 @@ struct Point localToGlobal(const struct Point& localFootPos, double baseX, doubl
 }
 
 struct Angles posToAngle(struct Point& p) {
-    double x = -p.x;
-    double y = -p.y;
-    double z = -p.z;
+    double x = p.x;
+    double y = p.y;
+    double z = p.z;
 
     // Apply rest offsets
     y += YRest;
@@ -169,35 +172,162 @@ void assignCoordinatesCoxa() {
     LR.y = 121.24;
 }
 
-struct Point legPath(float phase, float stepLength = 30.0f, float liftHeight = 30.0f) {
-    struct Point pos;
-    float halfStep = stepLength / 2.0f;
-
-    if (phase < 0.5f) {
-        // === STANCE PHASE ===
-        float t = phase / 0.5f; // [0, 1]
-        pos.x = (1.0f - t) * halfStep + t * (-halfStep); // front to back
-        pos.z = 0.0f; // on the ground
-    } else {
-        // === SWING PHASE ===
-        float t = (phase - 0.5f) / 0.5f; // [0, 1]
-        pos.x = (-halfStep) + t * stepLength; // back to front
-        pos.z = liftHeight * std::sin(M_PI * t); // smooth lift and drop
+// linespace function
+vector<float> linespace(float start, float end, int num_points) {
+    std::vector<float> values;
+    if (num_points <= 1) {
+        values.push_back(start);
+        return values;
     }
-
-    pos.y = 0.0f; // No side motion for this basic path
-
-    return pos;
+    float step = (end - start) / (num_points - 1);
+    for (int i = 0; i < num_points; ++i) {
+        values.push_back(start + step * i);
+    }
+    return values;
 }
 
+void animation(int coxaPin, int femurPin, int tibiaPin) {
+    double S = 80;
+    double A = 40;
+    double T = 80;
 
+    int numberOfPoint = 20;
+
+    struct Point p1;
+    p1.x = 0;
+    p1.y = 0;
+    p1.z = 0;
+
+    struct Angles a1 = posToAngle(p1);
+    moveServo(coxaPin, a1.J1);
+    moveServo(femurPin, a1.J2);
+    moveServo(tibiaPin, a1.J3);
+
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+
+    struct Point p2;
+    p2.x = T / 2;
+    p2.y = 0;
+    p2.z = S / 2;
+
+    struct Angles a2 = posToAngle(p2);
+    moveServo(coxaPin, a2.J1);
+    moveServo(femurPin, a2.J2);
+    moveServo(tibiaPin, a2.J3);
+
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+
+    struct Point p3;
+    p3.x = T;
+    p3.y = 0;
+    p3.z = 0;
+
+    struct Angles a3 = posToAngle(p3);
+    moveServo(coxaPin, a3.J1);
+    moveServo(femurPin, a3.J2);
+    moveServo(tibiaPin, a3.J3);
+
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+
+    struct Point p1back;
+    p1back.x = 0;
+    p1back.y = 0;
+    p1back.z = 0;
+
+    struct Angles a1back = posToAngle(p1back);
+    moveServo(coxaPin, a1back.J1);
+    moveServo(femurPin, a1back.J2);
+    moveServo(tibiaPin, a1back.J3);
+}
+
+void animation1(int coxaPin, int femurPin, int tibiaPin) {
+    double S = 80;
+    double A = 40;
+    double T = 80;
+
+    int numberOfPoint = 20;
+
+    struct Point p1;
+    p1.x = 0;
+    p1.y = 0;
+    p1.z = 0;
+
+    struct Point p2;
+    p2.x = T / 2;
+    p2.y = 0;
+    p2.z = S / 2;
+
+    struct Point p3;
+    p3.x = T;
+    p3.y = 0;
+    p3.z = 0;
+
+    //smooth transition between P1 and P2
+    std::vector<float> x_path = linespace(p1.x, p2.x, numberOfPoint);
+    std::vector<float> y_path = linespace(p1.y, p2.y, numberOfPoint);
+    std::vector<float> z_path = linespace(p1.z, p2.z, numberOfPoint);
+    for (int i = 0; i < numberOfPoint; ++i) {
+        struct Point p;
+        p.x = x_path[i];
+        p.y = y_path[i];
+        p.z = z_path[i];
+
+        struct Angles a = posToAngle(p);
+        moveServo(coxaPin, a.J1);
+        moveServo(femurPin, a.J2);
+        moveServo(tibiaPin, a.J3);
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(10)); // smooth transition
+    }
+
+    //smooth transition between P1 and P2
+    std::vector<float> x2_path = linespace(p2.x, p3.x, numberOfPoint);
+    std::vector<float> y2_path = linespace(p2.y, p3.y, numberOfPoint);
+    std::vector<float> z2_path = linespace(p2.z, p3.z, numberOfPoint);
+    for (int i = 0; i < numberOfPoint; ++i) {
+        struct Point p;
+        p.x = x2_path[i];
+        p.y = y2_path[i];
+        p.z = z2_path[i];
+
+        struct Angles a = posToAngle(p);
+        moveServo(coxaPin, a.J1);
+        moveServo(femurPin, a.J2);
+        moveServo(tibiaPin, a.J3);
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(10)); // smooth transition
+    }
+
+    //smooth transition between P1 and P2
+    std::vector<float> x3_path = linespace(p3.x, p1.x, numberOfPoint);
+    std::vector<float> y3_path = linespace(p3.y, p1.y, numberOfPoint);
+    std::vector<float> z3_path = linespace(p3.z, p1.z, numberOfPoint);
+    for (int i = 0; i < numberOfPoint; ++i) {
+        struct Point p;
+        p.x = x3_path[i];
+        p.y = y3_path[i];
+        p.z = z3_path[i];
+
+        struct Angles a = posToAngle(p);
+        moveServo(coxaPin, a.J1);
+        moveServo(femurPin, a.J2);
+        moveServo(tibiaPin, a.J3);
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(10)); // smooth transition
+    }
+}
 
 int main() {
     assignCoordinatesCoxa();
     openSerialPort("/dev/ttyUSB0", B115200);
 
+    while (true) {
+        animation1(24, 25, 26);
+    }
+
 
 
     closeSerialPort();
+
     return 0;
 }
