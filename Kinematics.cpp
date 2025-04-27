@@ -71,3 +71,16 @@ struct Angles posToAngle(const struct Point& p) {
     a.J3 = J3 + 2.0;   // Joint compensation offset
     return a;
 }
+
+Point rotateXY(const Point& p, double angleRad) {
+    double cosA = std::cos(angleRad);
+    double sinA = std::sin(angleRad);
+    return Point{
+        // new X =  x*cosθ − y*sinθ
+        p.x * cosA - p.y * sinA,
+        // new Y =  x*sinθ + y*cosθ
+        p.x * sinA + p.y * cosA,
+        // Z unchanged
+        p.z
+    };
+}
