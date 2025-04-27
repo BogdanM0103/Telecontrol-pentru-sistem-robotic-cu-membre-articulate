@@ -11,168 +11,70 @@
 #include "include/Servo.h"
 #include <thread>
 
-void animationMRLeg(int coxaPin, int femurPin, int tibiaPin, double angleRad) {
-    double S = 60;
-    double A = 30;
-    double T = 60;
+// generate one cycle of a “triangular” foot stroke
+//   S = stroke height, T = stride length, n = points per segment,
+//   liftZ = +S/2 to lift up, –S/2 to dip down
+std::vector<Point> makeFootCycle(double S, double T, int n, double liftZ) {
+    std::vector<Point> cycle;
+    cycle.reserve(n * 3);
 
-    int numberOfPoint = 20;
+    // segment 1: back → up
+    auto xs1 = linespace(-T/2,   0, n);
+    auto zs1 = linespace(   0, liftZ, n);
+    for (int i = 0; i < n; ++i)
+        cycle.push_back({ xs1[i], 0.0, zs1[i] });
 
-    struct Point p1;
-    p1.x = 0;
-    p1.y = 0;
-    p1.z = 0;
+    // segment 2: up → forward
+    auto xs2 = linespace(   0, T/2, n);
+    auto zs2 = linespace(liftZ,   0, n);
+    for (int i = 0; i < n; ++i)
+        cycle.push_back({ xs2[i], 0.0, zs2[i] });
 
-    struct Point p2;
-    p2.x = T / 2;
-    p2.y = 0;
-    p2.z = S / 2;
+    // segment 3: forward → back (flat)
+    auto xs3 = linespace( T/2, -T/2, n);
+    for (int i = 0; i < n; ++i)
+        cycle.push_back({ xs3[i], 0.0, 0.0 });
 
-    struct Point p3;
-    p3.x = T;
-    p3.y = 0;
-    p3.z = 0;
+    return cycle;
+}
 
-    //smooth transition between P1 and P2
-    std::vector<float> x_path = linespace(p1.x, p2.x, numberOfPoint);
-    std::vector<float> y_path = linespace(p1.y, p2.y, numberOfPoint);
-    std::vector<float> z_path = linespace(p1.z, p2.z, numberOfPoint);
-    for (int i = 0; i < numberOfPoint; ++i) {
-        struct Point p;
-        p.x = x_path[i];
-        p.y = y_path[i];
-        p.z = z_path[i];
+void animateLeg(int coxaPin,
+                int femurPin,
+                int tibiaPin,
+                double angleRad,   // how much to spin around Z
+                double S,          // stroke height
+                double T,          // stride length
+                int    n,          // points per segment
+                double liftZ)      // +S/2 for lift, –S/2 for dip
+{
+    auto cycle = makeFootCycle(S, T, n, liftZ);
 
-        std::cout << "(" << p.x << ", " << p.y << ", " << p.z << ")" << std::endl;
+    for (auto const& localP : cycle) {
+        // rotate the (x,0,z) stroke around Z by angleRad
+        Point rotated = rotateXY(localP, angleRad);
 
-        struct Angles a = posToAngle(p);
-        moveServo(coxaPin, a.J1);
+        // compute IK & drive servos
+        Angles a = posToAngle(rotated);
+        moveServo(coxaPin,  a.J1);
         moveServo(femurPin, a.J2);
         moveServo(tibiaPin, a.J3);
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(30)); // smooth transition
-    }
-
-    //smooth transition between P1 and P2
-    std::vector<float> x2_path = linespace(p2.x, p3.x, numberOfPoint);
-    std::vector<float> y2_path = linespace(p2.y, p3.y, numberOfPoint);
-    std::vector<float> z2_path = linespace(p2.z, p3.z, numberOfPoint);
-    for (int i = 0; i < numberOfPoint; ++i) {
-        struct Point p;
-        p.x = x2_path[i];
-        p.y = y2_path[i];
-        p.z = z2_path[i];
-
-        std::cout << "(" << p.x << ", " << p.y << ", " << p.z << ")" << std::endl;
-
-        struct Angles a = posToAngle(p);
-        moveServo(coxaPin, a.J1);
-        moveServo(femurPin, a.J2);
-        moveServo(tibiaPin, a.J3);
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(30)); // smooth transition
-    }
-
-    //smooth transition between P1 and P2
-    std::vector<float> x3_path = linespace(p3.x, p1.x, numberOfPoint);
-    std::vector<float> y3_path = linespace(p3.y, p1.y, numberOfPoint);
-    std::vector<float> z3_path = linespace(p3.z, p1.z, numberOfPoint);
-    for (int i = 0; i < numberOfPoint; ++i) {
-        struct Point p;
-        p.x = x3_path[i];
-        p.y = y3_path[i];
-        p.z = z3_path[i];
-
-        std::cout << "(" << p.x << ", " << p.y << ", " << p.z << ")" << std::endl;
-
-        struct Angles a = posToAngle(p);
-        moveServo(coxaPin, a.J1);
-        moveServo(femurPin, a.J2);
-        moveServo(tibiaPin, a.J3);
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(30)); // smooth transition
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
 }
 
+void animationMRLeg(int coxaPin, int femurPin, int tibiaPin, double angleRad) {
+    // MR lifts up
+    animateLeg(coxaPin, femurPin, tibiaPin,
+               angleRad,    // e.g. +30° in radians
+               /*S=*/60, /*T=*/60, /*n=*/10,
+               /*liftZ=*/+60.0/2);
+}
+
 void animationMLLeg(int coxaPin, int femurPin, int tibiaPin, double angleRad) {
-    double S = 60;
-    double A = 30;
-    double T = 60;
-
-    int numberOfPoint = 20;
-
-    struct Point p1;
-    p1.x = 0;
-    p1.y = 0;
-    p1.z = 0;
-
-    struct Point p2;
-    p2.x = T / 2;
-    p2.y = 0;
-    p2.z = -S / 2;
-
-    struct Point p3;
-    p3.x = T;
-    p3.y = 0;
-    p3.z = 0;
-
-    //smooth transition between P1 and P2
-    std::vector<float> x_path = linespace(p1.x, p2.x, numberOfPoint);
-    std::vector<float> y_path = linespace(p1.y, p2.y, numberOfPoint);
-    std::vector<float> z_path = linespace(p1.z, p2.z, numberOfPoint);
-    for (int i = 0; i < numberOfPoint; ++i) {
-        struct Point p;
-        p.x = x_path[i];
-        p.y = y_path[i];
-        p.z = z_path[i];
-
-        std::cout << "(" << p.x << ", " << p.y << ", " << p.z << ")" << std::endl;
-
-        struct Angles a = posToAngle(p);
-        moveServo(coxaPin, a.J1);
-        moveServo(femurPin, a.J2);
-        moveServo(tibiaPin, a.J3);
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(30)); // smooth transition
-    }
-
-    //smooth transition between P1 and P2
-    std::vector<float> x2_path = linespace(p2.x, p3.x, numberOfPoint);
-    std::vector<float> y2_path = linespace(p2.y, p3.y, numberOfPoint);
-    std::vector<float> z2_path = linespace(p2.z, p3.z, numberOfPoint);
-    for (int i = 0; i < numberOfPoint; ++i) {
-        struct Point p;
-        p.x = x2_path[i];
-        p.y = y2_path[i];
-        p.z = z2_path[i];
-
-        std::cout << "(" << p.x << ", " << p.y << ", " << p.z << ")" << std::endl;
-
-        struct Angles a = posToAngle(p);
-        moveServo(coxaPin, a.J1);
-        moveServo(femurPin, a.J2);
-        moveServo(tibiaPin, a.J3);
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(30)); // smooth transition
-    }
-
-    //smooth transition between P1 and P2
-    std::vector<float> x3_path = linespace(p3.x, p1.x, numberOfPoint);
-    std::vector<float> y3_path = linespace(p3.y, p1.y, numberOfPoint);
-    std::vector<float> z3_path = linespace(p3.z, p1.z, numberOfPoint);
-    for (int i = 0; i < numberOfPoint; ++i) {
-        struct Point p;
-        p.x = x3_path[i];
-        p.y = y3_path[i];
-        p.z = z3_path[i];
-
-        std::cout << "(" << p.x << ", " << p.y << ", " << p.z << ")" << std::endl;
-
-        struct Angles a = posToAngle(p);
-        moveServo(coxaPin, a.J1);
-        moveServo(femurPin, a.J2);
-        moveServo(tibiaPin, a.J3);
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(30)); // smooth transition
-    }
+    // ML dips down (negative liftZ)
+    animateLeg(coxaPin, femurPin, tibiaPin,
+               angleRad,
+               /*S=*/60, /*T=*/60, /*n=*/10,
+               /*liftZ=*/-60.0/2);
 }
