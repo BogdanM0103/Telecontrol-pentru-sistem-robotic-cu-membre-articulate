@@ -55,9 +55,10 @@ void animateLeg(int coxaPin,
 
         // compute IK & drive servos
         Angles a = posToAngle(rotated);
-        moveServo(coxaPin,  a.J1);
-        moveServo(femurPin, a.J2);
-        moveServo(tibiaPin, a.J3);
+        // moveServo(coxaPin,  a.J1);
+        // moveServo(femurPin, a.J2);
+        // moveServo(tibiaPin, a.J3);
+        moveServo(coxaPin, femurPin, tibiaPin, a.J1, a.J2, a.J3);
 
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
