@@ -2,10 +2,25 @@
 // Created by Bogdan on 4/27/2025.
 //
 
-#include "Kinematics.h"
+#include "include/Kinematics.h"
 
 #include <algorithm>
 #include <cmath>
+
+// Generates `num_points` equally spaced values from `start` to `end` (inclusive).
+std::vector<float> linespace(float start, float end, int num_points) {
+    std::vector<float> values;
+    if (num_points <= 1) {
+        values.push_back(start);
+        return values;
+    }
+    values.reserve(num_points);
+    float step = (end - start) / static_cast<float>(num_points - 1);
+    for (int i = 0; i < num_points; ++i) {
+        values.push_back(start + step * i);
+    }
+    return values;
+}
 
 // Transforms global (robot-centered) foot position into leg-local position
 struct Point globalToLocal(struct Point globalFootPos, double baseX, double baseY) {
@@ -24,7 +39,7 @@ struct Point localToGlobal(const struct Point& localFootPos, double baseX, doubl
     return global;
 }
 
-struct Angles posToAngle(struct Point& p) {
+struct Angles posToAngle(const struct Point& p) {
     double x = p.x;
     double y = p.y;
     double z = p.z;

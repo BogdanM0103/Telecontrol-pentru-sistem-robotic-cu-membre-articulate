@@ -1,13 +1,14 @@
-#include "Serial.h"
+#include "include/Serial.h"
 #include "LegCoordinates.h"
-#include "Gait.h"
+#include "include/Gait.h"
 
 int main() {
     assignCoordinatesCoxa();
     openSerialPort("/dev/ttyUSB0", B115200);
 
     while (true) {
-        animationMLLeg(4, 5, 6, 30.0);
+        animationMRLeg(20, 21, 22, 30.0);
+        // animationMLLeg(4, 5, 6, 30.0);
     }
 
     closeSerialPort();

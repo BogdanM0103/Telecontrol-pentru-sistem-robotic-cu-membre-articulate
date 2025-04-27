@@ -4,6 +4,8 @@
 
 // Kinematics.h
 #pragma once
+#include <vector>
+
 #include "Types.h"
 
 // Transforms global (robot-centered) foot position into leg-local coords
@@ -15,3 +17,5 @@ Angles posToAngle(const Point& p);
 
 // Optional utility
 Point rotateXY(const Point& p, double angleRad);
+
+std::vector<float> linespace(float start, float end, int num_points);

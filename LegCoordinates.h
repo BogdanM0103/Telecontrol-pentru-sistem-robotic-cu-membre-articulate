@@ -4,7 +4,7 @@
 
 // LegCoordinates.h
 #pragma once
-#include "Types.h"
+#include "include/Types.h"
 
 extern Point HL, ML, LL, HR, MR, LR;
 void assignCoordinatesCoxa();

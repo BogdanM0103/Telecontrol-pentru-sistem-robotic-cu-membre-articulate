@@ -2,13 +2,13 @@
 // Created by Bogdan on 4/27/2025.
 //
 
-#include "Servo.h"
+#include "include/Servo.h"
 
 #include <cstring>
 #include <iostream>
 #include <unistd.h>
 
-#include "Serial.h"
+#include "include/Serial.h"
 
 int degreesToPulseWidth(int degrees) {
     if (degrees < 0) degrees = 0;
