@@ -18,3 +18,7 @@ void moveFirstTripod();
 void moveSecondTripod();
 
 void rotateLeftInfinite();
+
+void rotateFirstTripodInPlace();
+
+void rotateSecondTripodInPlace();

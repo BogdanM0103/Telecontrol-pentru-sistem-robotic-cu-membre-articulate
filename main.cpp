@@ -13,12 +13,16 @@ int main() {
 
     while (true) {
         std::cout << "first tripod\n";
-        moveFirstTripod();
+        //moveFirstTripod();
+        rotateFirstTripodInPlace();
 
-        //std::this_thread::sleep_for(std::chrono::milliseconds(3000));  // 1s pause
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));  // 1s pause
 
         std::cout << "second tripod\n";
-        moveSecondTripod();
+        //moveSecondTripod();
+        //rotateSecondTripodInPlace();
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));  // 1s pause
 
         //std::this_thread::sleep_for(std::chrono::milliseconds(3000));  // 1s pause
     }

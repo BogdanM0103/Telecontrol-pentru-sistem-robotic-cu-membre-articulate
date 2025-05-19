@@ -303,3 +303,39 @@ void rotateFirstTripodInPlace() {
         );
     }
 }
+
+void rotateSecondTripodInPlace() {
+    assignCoordinatesCoxa();
+
+    const double S = 60.0, T = 60.0;
+    const int n = 10;
+    const int cycleMs = 1000;
+    const int frameDelay = cycleMs / (n * 3);
+
+    auto pathML = makeFootCycle(S, T, n, -S/2.0);  // HL (dip)
+    auto pathMR = makeFootCycle(S, T, n, +S/2.0);  // HR and LR (lift)
+
+    for (size_t i = 0; i < pathML.size(); ++i) {
+        // HL (4,5,6) at –45° (forward, dipping)
+        Point pD = rotateXY(pathML[i], DEG2RAD + M_PI);
+        Angles aD = posToAngle(pD);
+
+        // HR (16,17,18) at –45°, reverse direction by flipping X
+        Point reversedHR = pathMR[i];
+        reversedHR.x = -reversedHR.x;
+        Point pE = rotateXY(reversedHR, DEG2RAD);
+        Angles aE = posToAngle(pE);
+
+        // LR (24,25,26) at +45° (forward, lifting)
+        Point pF = rotateXY(pathMR[i], +45.0 * DEG2RAD);
+        Angles aF = posToAngle(pF);
+
+        moveServo( 4,  5,  6, aD.J1, aD.J2, aD.J3);
+        moveServo(16, 17, 18, aE.J1, aE.J2, aE.J3);
+        moveServo(24, 25, 26, aF.J1, aF.J2, aF.J3);
+
+        std::this_thread::sleep_for(
+            std::chrono::milliseconds(frameDelay)
+        );
+    }
+}
