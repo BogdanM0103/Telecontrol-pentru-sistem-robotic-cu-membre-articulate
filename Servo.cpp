@@ -263,7 +263,7 @@ void moveSecondTripod() {
     }
 }
 
-void rotateFirstTripodInPlace() {
+void rotateFirstTripodInPlaceLeft() {
     assignCoordinatesCoxa();
 
 
@@ -304,7 +304,7 @@ void rotateFirstTripodInPlace() {
     }
 }
 
-void rotateSecondTripodInPlace() {
+void rotateSecondTripodInPlaceLeft() {
     assignCoordinatesCoxa();
 
     const double S = 60.0, T = 60.0;
@@ -328,6 +328,87 @@ void rotateSecondTripodInPlace() {
 
         // LR (24,25,26) at +45° (forward, lifting)
         Point pF = rotateXY(pathMR[i], +45.0 * DEG2RAD);
+        Angles aF = posToAngle(pF);
+
+        moveServo( 4,  5,  6, aD.J1, aD.J2, aD.J3);
+        moveServo(16, 17, 18, aE.J1, aE.J2, aE.J3);
+        moveServo(24, 25, 26, aF.J1, aF.J2, aF.J3);
+
+        std::this_thread::sleep_for(
+            std::chrono::milliseconds(frameDelay)
+        );
+    }
+}
+
+void rotateFirstTripodInPlaceRight() {
+    assignCoordinatesCoxa();
+
+
+    // stroke parameters
+    const double S = 60.0, T = 60.0;
+    const int    n = 10;             // points per segment
+    const int    cycleMs = 1000;     // total cycle duration (1s)
+    const int    frameDelay = cycleMs / (n * 3);
+
+    // precompute two raw foot-paths (Y=0):
+    //  - back/dip for ML legs (liftZ negative)
+    //  - front/lift for MR leg (liftZ positive)
+    auto pathML = makeFootCycle(S, T, n, -S/2.0);
+    auto pathMR = makeFootCycle(S, T, n, +S/2.0);
+
+    for (size_t i = 0; i < pathML.size(); ++i) {
+        // Leg A (channels 0,1,2)  → ML at –45°
+        Point pA = rotateXY(pathML[i], DEG2RAD);
+        Angles aA = posToAngle(pA);
+
+        // invert the forward/backward motion by negating X
+        Point inv = pathMR[i];
+        inv.x = -inv.x;                          // ← mirror the stroke :contentReference[oaicite:0]{index=0}:contentReference[oaicite:1]{index=1}
+        Point pB  = rotateXY(inv, 0.0);
+        Angles aB = posToAngle(pB);
+
+        // Leg C (channels 8,9,10)  → ML at +45°
+        Point pC = rotateXY(pathML[i], DEG2RAD);
+        Angles aC = posToAngle(pC);
+
+        // send each leg’s 3-channel command atomically
+        moveServo( 0,  1,  2, aA.J1, aA.J2, aA.J3);
+        moveServo(20, 21, 22, aB.J1, aB.J2, aB.J3);
+        moveServo( 8,  9, 10, aC.J1, aC.J2, aC.J3);
+
+        // one sleep for all three legs
+        std::this_thread::sleep_for(
+            std::chrono::milliseconds(frameDelay)
+        );
+    }
+}
+
+void rotateSecondTripodInPlaceRight() {
+    assignCoordinatesCoxa();
+
+    const double S = 60.0, T = 60.0;
+    const int n = 10;
+    const int cycleMs = 1000;
+    const int frameDelay = cycleMs / (n * 3);
+
+    auto pathML = makeFootCycle(S, T, n, -S/2.0);  // HL (dip)
+    auto pathMR = makeFootCycle(S, T, n, +S/2.0);  // HR and LR (lift)
+
+    for (size_t i = 0; i < pathML.size(); ++i) {
+        // HL (4,5,6) at –45° (forward, dipping)
+        Point pD = rotateXY(pathML[i], DEG2RAD);
+        Angles aD = posToAngle(pD);
+
+        // HR (16,17,18) at –45°, reverse direction by flipping X
+        //Point reversedHR = pathMR[i];
+        //reversedHR.x = -reversedHR.x;
+        Point pE = rotateXY(pathMR[i], DEG2RAD);
+        Angles aE = posToAngle(pE);
+
+        // LR (24,25,26) at +45° (forward, lifting)
+        Point reversedHR = pathMR[i];
+        reversedHR.x = -reversedHR.x;
+        Point pF = rotateXY(reversedHR, DEG2RAD);
         Angles aF = posToAngle(pF);
 
         moveServo( 4,  5,  6, aD.J1, aD.J2, aD.J3);

@@ -7,3 +7,6 @@
 extern int serialPortFD;
 void openSerialPort(const char* port = "/dev/ttyUSB0", int baudRate = 112500);
 void closeSerialPort();
+
+// at the bottom of Serial.h
+void disableServo(int channel);

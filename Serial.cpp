@@ -43,3 +43,20 @@ void closeSerialPort() {
         serialPortFD = -1;
     }
 }
+
+// Send a zero-pulse to “turn off” the servo on that channel.
+// (Most controllers interpret pulse==0 as “stop pulsing.”)
+void disableServo(int channel) {
+    if (serialPortFD == -1) {
+        std::cerr << "Serial port not open.\n";
+        return;
+    }
+    if (channel < 0 || channel > 31) {
+        std::cerr << "Invalid channel number.\n";
+        return;
+    }
+    // ASCII “#<chan>P0<CR>” => 0 µs pulse => no more pulses sent
+    char cmd[16];
+    snprintf(cmd, sizeof(cmd), "#%dP0\r", channel);
+    write(serialPortFD, cmd, strlen(cmd));
+}
