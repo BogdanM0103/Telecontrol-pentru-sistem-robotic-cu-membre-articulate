@@ -83,17 +83,97 @@ CMakeFiles/HexapodRobot.dir/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/HexapodRobot.dir/main.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /tmp/tmp.EXyrbXu9HR/HexapodRobot/main.cpp -o CMakeFiles/HexapodRobot.dir/main.cpp.s
 
+CMakeFiles/HexapodRobot.dir/Serial.cpp.o: CMakeFiles/HexapodRobot.dir/flags.make
+CMakeFiles/HexapodRobot.dir/Serial.cpp.o: /tmp/tmp.EXyrbXu9HR/HexapodRobot/Serial.cpp
+CMakeFiles/HexapodRobot.dir/Serial.cpp.o: CMakeFiles/HexapodRobot.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/tmp/tmp.EXyrbXu9HR/HexapodRobot/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/HexapodRobot.dir/Serial.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/HexapodRobot.dir/Serial.cpp.o -MF CMakeFiles/HexapodRobot.dir/Serial.cpp.o.d -o CMakeFiles/HexapodRobot.dir/Serial.cpp.o -c /tmp/tmp.EXyrbXu9HR/HexapodRobot/Serial.cpp
+
+CMakeFiles/HexapodRobot.dir/Serial.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/HexapodRobot.dir/Serial.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /tmp/tmp.EXyrbXu9HR/HexapodRobot/Serial.cpp > CMakeFiles/HexapodRobot.dir/Serial.cpp.i
+
+CMakeFiles/HexapodRobot.dir/Serial.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/HexapodRobot.dir/Serial.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /tmp/tmp.EXyrbXu9HR/HexapodRobot/Serial.cpp -o CMakeFiles/HexapodRobot.dir/Serial.cpp.s
+
+CMakeFiles/HexapodRobot.dir/Kinematics.cpp.o: CMakeFiles/HexapodRobot.dir/flags.make
+CMakeFiles/HexapodRobot.dir/Kinematics.cpp.o: /tmp/tmp.EXyrbXu9HR/HexapodRobot/Kinematics.cpp
+CMakeFiles/HexapodRobot.dir/Kinematics.cpp.o: CMakeFiles/HexapodRobot.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/tmp/tmp.EXyrbXu9HR/HexapodRobot/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/HexapodRobot.dir/Kinematics.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/HexapodRobot.dir/Kinematics.cpp.o -MF CMakeFiles/HexapodRobot.dir/Kinematics.cpp.o.d -o CMakeFiles/HexapodRobot.dir/Kinematics.cpp.o -c /tmp/tmp.EXyrbXu9HR/HexapodRobot/Kinematics.cpp
+
+CMakeFiles/HexapodRobot.dir/Kinematics.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/HexapodRobot.dir/Kinematics.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /tmp/tmp.EXyrbXu9HR/HexapodRobot/Kinematics.cpp > CMakeFiles/HexapodRobot.dir/Kinematics.cpp.i
+
+CMakeFiles/HexapodRobot.dir/Kinematics.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/HexapodRobot.dir/Kinematics.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /tmp/tmp.EXyrbXu9HR/HexapodRobot/Kinematics.cpp -o CMakeFiles/HexapodRobot.dir/Kinematics.cpp.s
+
+CMakeFiles/HexapodRobot.dir/Servo.cpp.o: CMakeFiles/HexapodRobot.dir/flags.make
+CMakeFiles/HexapodRobot.dir/Servo.cpp.o: /tmp/tmp.EXyrbXu9HR/HexapodRobot/Servo.cpp
+CMakeFiles/HexapodRobot.dir/Servo.cpp.o: CMakeFiles/HexapodRobot.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/tmp/tmp.EXyrbXu9HR/HexapodRobot/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/HexapodRobot.dir/Servo.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/HexapodRobot.dir/Servo.cpp.o -MF CMakeFiles/HexapodRobot.dir/Servo.cpp.o.d -o CMakeFiles/HexapodRobot.dir/Servo.cpp.o -c /tmp/tmp.EXyrbXu9HR/HexapodRobot/Servo.cpp
+
+CMakeFiles/HexapodRobot.dir/Servo.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/HexapodRobot.dir/Servo.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /tmp/tmp.EXyrbXu9HR/HexapodRobot/Servo.cpp > CMakeFiles/HexapodRobot.dir/Servo.cpp.i
+
+CMakeFiles/HexapodRobot.dir/Servo.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/HexapodRobot.dir/Servo.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /tmp/tmp.EXyrbXu9HR/HexapodRobot/Servo.cpp -o CMakeFiles/HexapodRobot.dir/Servo.cpp.s
+
+CMakeFiles/HexapodRobot.dir/LegCoordinates.cpp.o: CMakeFiles/HexapodRobot.dir/flags.make
+CMakeFiles/HexapodRobot.dir/LegCoordinates.cpp.o: /tmp/tmp.EXyrbXu9HR/HexapodRobot/LegCoordinates.cpp
+CMakeFiles/HexapodRobot.dir/LegCoordinates.cpp.o: CMakeFiles/HexapodRobot.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/tmp/tmp.EXyrbXu9HR/HexapodRobot/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/HexapodRobot.dir/LegCoordinates.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/HexapodRobot.dir/LegCoordinates.cpp.o -MF CMakeFiles/HexapodRobot.dir/LegCoordinates.cpp.o.d -o CMakeFiles/HexapodRobot.dir/LegCoordinates.cpp.o -c /tmp/tmp.EXyrbXu9HR/HexapodRobot/LegCoordinates.cpp
+
+CMakeFiles/HexapodRobot.dir/LegCoordinates.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/HexapodRobot.dir/LegCoordinates.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /tmp/tmp.EXyrbXu9HR/HexapodRobot/LegCoordinates.cpp > CMakeFiles/HexapodRobot.dir/LegCoordinates.cpp.i
+
+CMakeFiles/HexapodRobot.dir/LegCoordinates.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/HexapodRobot.dir/LegCoordinates.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /tmp/tmp.EXyrbXu9HR/HexapodRobot/LegCoordinates.cpp -o CMakeFiles/HexapodRobot.dir/LegCoordinates.cpp.s
+
+CMakeFiles/HexapodRobot.dir/Gait.cpp.o: CMakeFiles/HexapodRobot.dir/flags.make
+CMakeFiles/HexapodRobot.dir/Gait.cpp.o: /tmp/tmp.EXyrbXu9HR/HexapodRobot/Gait.cpp
+CMakeFiles/HexapodRobot.dir/Gait.cpp.o: CMakeFiles/HexapodRobot.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/tmp/tmp.EXyrbXu9HR/HexapodRobot/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/HexapodRobot.dir/Gait.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/HexapodRobot.dir/Gait.cpp.o -MF CMakeFiles/HexapodRobot.dir/Gait.cpp.o.d -o CMakeFiles/HexapodRobot.dir/Gait.cpp.o -c /tmp/tmp.EXyrbXu9HR/HexapodRobot/Gait.cpp
+
+CMakeFiles/HexapodRobot.dir/Gait.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/HexapodRobot.dir/Gait.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /tmp/tmp.EXyrbXu9HR/HexapodRobot/Gait.cpp > CMakeFiles/HexapodRobot.dir/Gait.cpp.i
+
+CMakeFiles/HexapodRobot.dir/Gait.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/HexapodRobot.dir/Gait.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /tmp/tmp.EXyrbXu9HR/HexapodRobot/Gait.cpp -o CMakeFiles/HexapodRobot.dir/Gait.cpp.s
+
 # Object files for target HexapodRobot
 HexapodRobot_OBJECTS = \
-"CMakeFiles/HexapodRobot.dir/main.cpp.o"
+"CMakeFiles/HexapodRobot.dir/main.cpp.o" \
+"CMakeFiles/HexapodRobot.dir/Serial.cpp.o" \
+"CMakeFiles/HexapodRobot.dir/Kinematics.cpp.o" \
+"CMakeFiles/HexapodRobot.dir/Servo.cpp.o" \
+"CMakeFiles/HexapodRobot.dir/LegCoordinates.cpp.o" \
+"CMakeFiles/HexapodRobot.dir/Gait.cpp.o"
 
 # External object files for target HexapodRobot
 HexapodRobot_EXTERNAL_OBJECTS =
 
 HexapodRobot: CMakeFiles/HexapodRobot.dir/main.cpp.o
+HexapodRobot: CMakeFiles/HexapodRobot.dir/Serial.cpp.o
+HexapodRobot: CMakeFiles/HexapodRobot.dir/Kinematics.cpp.o
+HexapodRobot: CMakeFiles/HexapodRobot.dir/Servo.cpp.o
+HexapodRobot: CMakeFiles/HexapodRobot.dir/LegCoordinates.cpp.o
+HexapodRobot: CMakeFiles/HexapodRobot.dir/Gait.cpp.o
 HexapodRobot: CMakeFiles/HexapodRobot.dir/build.make
 HexapodRobot: CMakeFiles/HexapodRobot.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/tmp/tmp.EXyrbXu9HR/HexapodRobot/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable HexapodRobot"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/tmp/tmp.EXyrbXu9HR/HexapodRobot/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Linking CXX executable HexapodRobot"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/HexapodRobot.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

@@ -1,1 +1,1 @@
-/usr/bin/c++ -g CMakeFiles/HexapodRobot.dir/main.cpp.o -o HexapodRobot 
+/usr/bin/c++ -g CMakeFiles/HexapodRobot.dir/main.cpp.o CMakeFiles/HexapodRobot.dir/Serial.cpp.o CMakeFiles/HexapodRobot.dir/Kinematics.cpp.o CMakeFiles/HexapodRobot.dir/Servo.cpp.o CMakeFiles/HexapodRobot.dir/LegCoordinates.cpp.o CMakeFiles/HexapodRobot.dir/Gait.cpp.o -o HexapodRobot 

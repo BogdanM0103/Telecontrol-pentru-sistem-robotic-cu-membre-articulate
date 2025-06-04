@@ -35,7 +35,7 @@ int main() {
         //rotateSecondTripodInPlaceRight();
 
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));  // 1s pause
-
+        std::cout << "Hello";
         //std::this_thread::sleep_for(std::chrono::milliseconds(3000));  // 1s pause
     //}
 

@@ -81,12 +81,12 @@ clean: CMakeFiles/HexapodRobot.dir/clean
 CMakeFiles/HexapodRobot.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/HexapodRobot.dir/build.make CMakeFiles/HexapodRobot.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/HexapodRobot.dir/build.make CMakeFiles/HexapodRobot.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/tmp/tmp.EXyrbXu9HR/HexapodRobot/cmake-build-debug/CMakeFiles --progress-num=1,2 "Built target HexapodRobot"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/tmp/tmp.EXyrbXu9HR/HexapodRobot/cmake-build-debug/CMakeFiles --progress-num=1,2,3,4,5,6,7 "Built target HexapodRobot"
 .PHONY : CMakeFiles/HexapodRobot.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/HexapodRobot.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /tmp/tmp.EXyrbXu9HR/HexapodRobot/cmake-build-debug/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /tmp/tmp.EXyrbXu9HR/HexapodRobot/cmake-build-debug/CMakeFiles 7
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/HexapodRobot.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /tmp/tmp.EXyrbXu9HR/HexapodRobot/cmake-build-debug/CMakeFiles 0
 .PHONY : CMakeFiles/HexapodRobot.dir/rule

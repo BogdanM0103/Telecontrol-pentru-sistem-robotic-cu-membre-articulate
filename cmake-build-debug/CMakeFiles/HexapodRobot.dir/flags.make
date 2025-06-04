@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = 
+CXX_INCLUDES = -I/tmp/tmp.EXyrbXu9HR/HexapodRobot/HexapodRobot/include
 
 CXX_FLAGS = -g -fdiagnostics-color=always -std=gnu++20
 
