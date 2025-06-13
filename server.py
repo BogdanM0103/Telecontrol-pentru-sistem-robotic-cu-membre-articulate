@@ -6,7 +6,7 @@ app = Flask(__name__)
 RASPBERRY_PI_HOST = "192.168.1.143"  # Replace with your Pi's IP
 RASPBERRY_PI_USER = "bogdan"
 RASPBERRY_PI_PASSWORD = "1234"
-ROBOT_BINARY_PATH = r"/tmp/tmp.EXyrbXu9HR/HexapodRobot/cmake-build-debug/HexapodRobot"
+ROBOT_BINARY_PATH = r"/home/bogdan/Desktop/Hexapod/cmake-build-debug/cmake-build-debug/cmake-build-debug/HexapodRobot"
 
 
 @app.route('/')
