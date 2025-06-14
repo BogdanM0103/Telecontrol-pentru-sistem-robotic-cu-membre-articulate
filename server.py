@@ -13,18 +13,76 @@ REMOTE_BIN = "/home/bogdan/Desktop/Hexapod/cmake-build-debug/cmake-build-debug/c
 @app.route('/')
 def index():
     return '''
-    <h1>Hexapod Control</h1>
-    <form method="POST" action="/cmd">
-      <button name="cmd" value="forward">Move Forward</button><br>
-      <button name="cmd" value="rotate_left">Rotate Left</button>
-      <button name="cmd" value="rotate_right">Rotate Right</button>
-    </form>
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>Hexapod Control</title>
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100vh;
+          background-color: #f8f9fa;
+        }
+        .control-box {
+          background: #ffffff;
+          border: 2px solid #ccc;
+          border-radius: 12px;
+          padding: 30px;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          text-align: center;
+        }
+        .btn-row {
+          display: flex;
+          justify-content: space-between;
+          margin-top: 20px;
+        }
+        .vertical-gap {
+          margin-top: 20px;
+        }
+        button {
+          font-size: 32px;
+          padding: 10px 20px;
+          margin: 5px;
+          width: 80px;
+          height: 80px;
+          border: none;
+          border-radius: 8px;
+          background-color: #007bff;
+          color: white;
+          cursor: pointer;
+        }
+        button:hover {
+          background-color: #0056b3;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="control-box">
+        <form method="POST" action="/cmd">
+          <div>
+            <button name="cmd" value="forward">^</button>
+          </div>
+          <div class="btn-row">
+            <button name="cmd" value="rotate_left">&lt;</button>
+            <button name="cmd" value="rotate_right">&gt;</button>
+          </div>
+          <div class="vertical-gap">
+            <button name="cmd" value="move_backward">v</button>
+          </div>
+        </form>
+      </div>
+    </body>
+    </html>
     '''
 
 @app.route('/cmd', methods=['POST'])
 def cmd():
     action = request.form.get('cmd')
-    if action not in ("forward","rotate_left","rotate_right"):
+    if action not in ("forward", "rotate_left", "rotate_right", "move_backward"):
         return "Invalid", 400
 
     # run in background on the Pi so Flask returns immediately

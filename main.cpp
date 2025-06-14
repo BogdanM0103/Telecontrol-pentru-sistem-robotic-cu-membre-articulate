@@ -19,7 +19,8 @@ int main(int argc, char* argv[]) {
         std::cerr << "Usage:\n"
                   << "  ./HexapodRobot forward\n"
                   << "  ./HexapodRobot rotate_left\n"
-                  << "  ./HexapodRobot rotate_right\n";
+                  << "  ./HexapodRobot rotate_right\n"
+                << "./HexapodRobot move_backward\n";
         return 1;
     }
 
@@ -43,10 +44,10 @@ int main(int argc, char* argv[]) {
         rotateFirstTripodInPlaceRight();
         rotateSecondTripodInPlaceRight();
     }
-    else {
-        std::cerr << "Unknown command: " << cmd << "\n";
-        closeSerialPort();
-        return 1;
+    else if (cmd == "move_backward") {
+        std::cout << ">>> Moving forward one cycle\n";
+        moveFirstTripod(180.0f);
+        moveSecondTripod(180.0f);
     }
 
     // give it a moment to finish
