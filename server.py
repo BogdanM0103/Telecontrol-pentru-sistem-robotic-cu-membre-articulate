@@ -25,27 +25,23 @@ def index():
 def cmd():
     action = request.form.get('cmd')
     if action not in ("forward","rotate_left","rotate_right"):
-        return "Invalid",400
+        return "Invalid", 400
 
-    # build the remote command string
-    remote_cmd = f"{REMOTE_BIN} {action}"
+    # run in background on the Pi so Flask returns immediately
+    remote_cmd = f"nohup {REMOTE_BIN} {action} > /dev/null 2>&1 &"
 
     try:
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         ssh.connect(PI_HOST, username=PI_USER, password=PI_PASS)
 
-        stdin, stdout, stderr = ssh.exec_command(remote_cmd)
-        exit_code = stdout.channel.recv_exit_status()
-        out = stdout.read().decode().strip()
-        err = stderr.read().decode().strip()
+        ssh.exec_command(remote_cmd)
         ssh.close()
 
-        # Show you exactly what ran and any errors
-        return f"<pre>Ran: {remote_cmd}\n\nExit code: {exit_code}\n\nSTDOUT:\n{out}\n\nSTDERR:\n{err}</pre>"
+        return redirect(url_for('index'))
 
     except Exception as e:
-        return f"<pre>SSH failed: {e}</pre>",500
+        return f"<pre>SSH failed: {e}</pre>", 500
 
 if __name__=="__main__":
-    app.run(host="0.0.0.0",port=8080)
+    app.run(host="0.0.0.0", port=8080)
