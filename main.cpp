@@ -48,6 +48,10 @@ int main(int argc, char* argv[]) {
         std::cout << ">>> Moving forward one cycle\n";
         moveFirstTripod(180.0f);
         moveSecondTripod(180.0f);
+    } else {
+        std::cerr << "Unknown command: " << cmd << "\n";
+        closeSerialPort();
+        return 1;
     }
 
     // give it a moment to finish
