@@ -13,9 +13,9 @@ int degreesToPulseWidth(int degrees);
 
 void moveServo(int channel1, int channel2, int channel3, double degrees1, double degrees2, double degrees3);
 
-void moveFirstTripod();
+void moveFirstTripod(double angleDeg);
 
-void moveSecondTripod();
+void moveSecondTripod(double angleDeg);
 
 void rotateLeftInfinite();
 

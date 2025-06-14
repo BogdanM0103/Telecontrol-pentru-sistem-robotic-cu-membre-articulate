@@ -1,43 +1,62 @@
 #include <iostream>
-#include <math.h>
 #include <thread>
 
 #include "include/Serial.h"
-#include "LegCoordinates.h"
 #include "include/Gait.h"
-#include "include/Kinematics.h"
 #include "include/Servo.h"
+#include "include/Kinematics.h"
+#include "LegCoordinates.h"
 
 void unstiffenIdleCoxae(const std::initializer_list<int>& channels) {
     for (int ch : channels) {
         disableServo(ch);
-        // tiny delay to avoid overwhelming the serial bus
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 }
 
-int main() {
-    openSerialPort("/dev/ttyUSB0", B115200);
+int main(int argc, char* argv[]) {
+    if (argc < 2) {
+        std::cerr << "Usage:\n"
+                  << "  ./HexapodRobot forward\n"
+                  << "  ./HexapodRobot rotate_left\n"
+                  << "  ./HexapodRobot rotate_right\n";
+        return 1;
+    }
 
-    //while (true) {
-        std::cout << "first tripod\n";
-        //moveFirstTripod();
-        //unstiffenIdleCoxae({4, 16, 24});
+    std::string cmd = argv[1];
+
+    // open your serial port (you said it's now ttyUSB1)
+    openSerialPort("/dev/ttyUSB1", B115200);
+
+    if (cmd == "forward") {
+        std::cout << ">>> Moving forward one cycle\n";
+        moveFirstTripod(0.0f);
+        moveSecondTripod(0.0f);
+    }
+    else if (cmd == "rotate_left") {
+        std::cout << ">>> Rotating in place left\n";
         rotateFirstTripodInPlaceLeft();
-        //rotateFirstTripodInPlaceRight();
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));  // 1s pause
-
-        std::cout << "second tripod\n";
-        //moveSecondTripod();
-        //unstiffenIdleCoxae({0, 8, 20});
         rotateSecondTripodInPlaceLeft();
-        //rotateSecondTripodInPlaceRight();
+    }
+    else if (cmd == "rotate_right") {
+        std::cout << ">>> Rotating in place right\n";
+        rotateFirstTripodInPlaceRight();
+        rotateSecondTripodInPlaceRight();
+    }
+    else {
+        std::cerr << "Unknown command: " << cmd << "\n";
+        closeSerialPort();
+        return 1;
+    }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));  // 1s pause
-        std::cout << "Hello";
-        //std::this_thread::sleep_for(std::chrono::milliseconds(3000));  // 1s pause
-    //}
+    // give it a moment to finish
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+    // unpower all servos
+    unstiffenIdleCoxae({
+        0,1,2,   4,5,6,   8,9,10,
+       16,17,18,20,21,22,24,25,26
+    });
 
     closeSerialPort();
     return 0;
