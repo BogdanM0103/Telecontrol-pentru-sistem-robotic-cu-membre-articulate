@@ -1,14 +1,10 @@
-# server.py
 from flask import Flask, request, redirect, url_for
-import paramiko
+import socket
 
 app = Flask(__name__)
 
-PI_HOST   = "192.168.1.143"
-PI_USER   = "bogdan"
-PI_PASS   = "1234"
-# ← use the full, exact path to your built binary:
-REMOTE_BIN = "/home/bogdan/Desktop/Hexapod/cmake-build-debug/cmake-build-debug/cmake-build-debug/HexapodRobot"
+PI_HOST = "192.168.1.143"   # IP of your Pi
+PI_PORT = 5005              # Must match udp_server.py UDP_PORT
 
 @app.route('/')
 def index():
@@ -85,21 +81,14 @@ def cmd():
     if action not in ("forward", "rotate_left", "rotate_right", "move_backward"):
         return "Invalid", 400
 
-    # run in background on the Pi so Flask returns immediately
-    remote_cmd = f"nohup {REMOTE_BIN} {action} > /dev/null 2>&1 &"
-
+    # Send command via UDP
     try:
-        ssh = paramiko.SSHClient()
-        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh.connect(PI_HOST, username=PI_USER, password=PI_PASS)
-
-        ssh.exec_command(remote_cmd)
-        ssh.close()
-
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.sendto(action.encode('utf-8'), (PI_HOST, PI_PORT))
+        sock.close()
         return redirect(url_for('index'))
-
     except Exception as e:
-        return f"<pre>SSH failed: {e}</pre>", 500
+        return f"UDP send failed: {e}", 500
 
-if __name__=="__main__":
+if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
