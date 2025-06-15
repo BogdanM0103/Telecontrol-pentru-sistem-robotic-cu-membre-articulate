@@ -4,7 +4,7 @@ import socket
 app = Flask(__name__)
 
 PI_HOST = "192.168.1.143"   # IP of your Pi
-PI_PORT = 5005              # Must match udp_server.py UDP_PORT
+PI_PORT = 6006              # Must match udp_server.py UDP_PORT
 
 @app.route('/')
 def index():
@@ -96,7 +96,7 @@ def index():
 
       <script>
         const PI_HOST = "192.168.1.143";  // not used here
-        const UDP_PORT = 5005;
+        const UDP_PORT = 6006;
 
         const zone   = document.getElementById('joystickZone');
         const handle = document.getElementById('joystickHandle');

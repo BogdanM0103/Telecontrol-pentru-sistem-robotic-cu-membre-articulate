@@ -5,7 +5,7 @@ import logging
 
 # Configuration
 UDP_IP = "0.0.0.0"      # Listen on all interfaces
-UDP_PORT = 5005           # Must match client port
+UDP_PORT = 6006           # Must match client port
 # Full path to your built Hexapod binary on the Pi
 REMOTE_BIN = "/home/bogdan/Desktop/Hexapod/cmake-build-debug/cmake-build-debug/cmake-build-debug/HexapodRobot"
 ALLOWED_CMDS = {"forward", "rotate_left", "rotate_right", "move_backward"}
