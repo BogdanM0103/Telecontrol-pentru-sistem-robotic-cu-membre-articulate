@@ -67,9 +67,9 @@ def index():
             <button name="cmd" value="forward">^</button>
           </div>
           <div class="btn-row">
-            <button name="cmd" value="rotate_left">&lt;</button>
-            <button name="cmd" value="rotate_right">&gt;</button>
-          </div>
+            <button name="cmd" value="rotate_left" style="margin-right: 40px;">&lt;</button>
+            <button name="cmd" value="rotate_right" style="margin-left: 40px;">&gt;</button>
+            </div>
           <div class="vertical-gap">
             <button name="cmd" value="move_backward">v</button>
           </div>
