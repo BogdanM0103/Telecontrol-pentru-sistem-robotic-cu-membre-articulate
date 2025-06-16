@@ -1,4 +1,5 @@
-from flask import Flask, request, redirect, url_for
+# server.py
+from flask import Flask, request, redirect, url_for, jsonify
 import socket
 
 app = Flask(__name__)
@@ -95,7 +96,6 @@ def index():
       </div>
 
       <script>
-        const PI_HOST = "192.168.1.143";  // not used here
         const UDP_PORT = 6006;
 
         const zone   = document.getElementById('joystickZone');
@@ -112,10 +112,8 @@ def index():
           }).catch(console.error);
         }
 
-        zone.addEventListener('mousedown', e => {
-          dragging = true;
-        });
-        document.addEventListener('mouseup', e => {
+        zone.addEventListener('mousedown', () => { dragging = true; });
+        document.addEventListener('mouseup', () => {
           if (!dragging) return;
           dragging = false;
           handle.style.left = '50%';
@@ -129,20 +127,20 @@ def index():
           let x = e.clientX - rect.left;
           let y = e.clientY - rect.top;
           let dx = x - radius, dy = y - radius;
-          let dist = Math.hypot(dx,dy);
+          let dist = Math.hypot(dx, dy);
           let maxDist = radius - handle.offsetWidth/2;
           if (dist > maxDist) {
             const r = maxDist / dist;
             dx *= r; dy *= r;
             dist = maxDist;
           }
-          handle.style.left = (dx + radius - handle.offsetWidth/2) + 'px';
-          handle.style.top  = (dy + radius - handle.offsetHeight/2)+ 'px';
+          handle.style.left = `${dx + radius - handle.offsetWidth/2}px`;
+          handle.style.top  = `${dy + radius - handle.offsetHeight/2}px`;
 
           let ang = Math.atan2(dy, dx) * 180/Math.PI;
           if (ang < 0) ang += 360;
           let fromVert = (ang + 90) % 360;
-          let power = Math.round(dist/maxDist * 100);
+          let power = Math.round(dist / maxDist * 100);
 
           disp.textContent = `Angle: ${Math.round(fromVert)}°, Power: ${power}%`;
           sendJoystick(Math.round(fromVert), power);
@@ -158,7 +156,6 @@ def cmd():
     if action not in ("forward", "rotate_left", "rotate_right", "move_backward"):
         return "Invalid", 400
 
-    # Send command via UDP
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         sock.sendto(action.encode('utf-8'), (PI_HOST, PI_PORT))
@@ -166,6 +163,26 @@ def cmd():
         return redirect(url_for('index'))
     except Exception as e:
         return f"UDP send failed: {e}", 500
+
+@app.route('/joystick', methods=['POST'])
+def joystick():
+    data = request.get_json()
+    angle = data.get('angle', -1)
+    power = data.get('power', 0)
+
+    # crab when dragged, stop when released
+    if power <= 0:
+        cmd = "stop"
+    else:
+        cmd = f"crab {angle}"
+
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.sendto(cmd.encode('utf-8'), (PI_HOST, PI_PORT))
+        sock.close()
+        return jsonify(success=True)
+    except Exception as e:
+        return jsonify(success=False, error=str(e)), 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
