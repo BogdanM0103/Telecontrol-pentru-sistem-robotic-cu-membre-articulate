@@ -20,7 +20,8 @@ int main(int argc, char* argv[]) {
                   << "  ./HexapodRobot forward\n"
                   << "  ./HexapodRobot rotate_left\n"
                   << "  ./HexapodRobot rotate_right\n"
-                << "./HexapodRobot move_backward\n";
+                << "./HexapodRobot move_backward\n"
+        << "  ./HexapodRobot crab <angle_degrees>\n";
         return 1;
     }
 
@@ -46,6 +47,10 @@ int main(int argc, char* argv[]) {
     }
     else if (cmd == "move_backward") {
         std::cout << ">>> Moving forward one cycle\n";
+        moveFirstTripod(180.0f);
+        moveSecondTripod(180.0f);
+    } else if (cmd == "move_backward") {
+        std::cout << ">>> Moving backward one cycle\n";
         moveFirstTripod(180.0f);
         moveSecondTripod(180.0f);
     } else {
