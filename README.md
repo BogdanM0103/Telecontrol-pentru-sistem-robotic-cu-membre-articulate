@@ -51,9 +51,10 @@ Pentru a compila și rula aplicația direct pe Raspberry Pi din CLion, urmați p
 1. Selectează profilul “Remote-RPi” și execută **Build → Build Project**.  
    - CLion va urca (SFTP) sursele pe Pi și va rula `make` acolo.  
 2. Creează o configurație de tip **Remote Application**:  
-   - **Executabil**: `/home/pi/project_sync/cmake-build-remote/<numele_executabilului>`.  
+   - **Executabil**: `/home/pi/directory/cmake-build-remote/<numele_executabilului>`.  
    - **Host**: același Remote Host.  
-3. Rulează aplicația cu **Run → Run '<config>'**. Binarul va fi copiat și lansat pe Pi, iar output-ul apare în consola locală.
+3. Pe placa Raspberry Pi, în locul unde există fișierul "udp_server.py", rulează în terminal "python3 udp_server.py"
+4. Rulează din Clion scriptul "server.py" cu **Run → Run '<config>'**. Binarul va fi copiat și lansat pe Pi, iar adresa webserverului apare în consola locală.
 
 ## 3. Clonare și rulare proiect
 
