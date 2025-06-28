@@ -2,17 +2,35 @@
 #include <iostream>
 #include <thread>
 #include <string>
+#include <algorithm>
 
 #include "include/Serial.h"
 #include "include/Servo.h"
 #include "include/Kinematics.h"
 #include "LegCoordinates.h"
 
-void setAllServosTo90() {
-    for (int ch : {0,1,2,4,5,6,8,9,10,16,17,18,20,21,22,24,25,26}) {
-        // assuming 1500µs == 90°
-        moveServo(ch, 90);
-    }
+// Enum pentru comenzile suportate
+enum class Command {
+    Forward,
+    RotateLeft,
+    RotateRight,
+    MoveBackward,
+    Crab,
+    Stop,
+    Unknown
+};
+
+// Convertim string-ul în Command
+Command parseCommand(const std::string& s) {
+    std::string cmd = s;
+    std::transform(cmd.begin(), cmd.end(), cmd.begin(), ::tolower);
+    if      (cmd == "forward")         return Command::Forward;
+    else if (cmd == "rotate_left")     return Command::RotateLeft;
+    else if (cmd == "rotate_right")    return Command::RotateRight;
+    else if (cmd == "move_backward")   return Command::MoveBackward;
+    else if (cmd == "crab")            return Command::Crab;
+    else if (cmd == "stop")            return Command::Stop;
+    else                                return Command::Unknown;
 }
 
 int main(int argc, char* argv[]) {
@@ -27,64 +45,76 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    std::string cmd = argv[1];
+    // Deschidem portul serial pe unul dintre cele două dispozitive
+    if (!openSerialPort("/dev/ttyUSB0", B115200) &&
+        !openSerialPort("/dev/ttyUSB1", B115200)) {
+        std::cerr << "Error: could not open serial port\n";
+        return 1;
+    }
 
-    // open your serial port (updated to ttyUSB1)
-    if (openSerialPort("/dev/ttyUSB0", B115200) == true || openSerialPort("/dev/ttyUSB1", B115200) == true) {
-        if (cmd == "forward") {
+    Command cmd = parseCommand(argv[1]);
+    float angle = 0.0f;
+
+    // Pentru comanda 'crab' citim unghiul suplimentar
+    if (cmd == Command::Crab) {
+        if (argc < 3) {
+            std::cerr << "Usage: ./HexapodRobot crab <angle_degrees>\n";
+            closeSerialPort();
+            return 1;
+        }
+        angle = std::stof(argv[2]);
+    }
+
+    switch (cmd) {
+        case Command::Forward:
             std::cout << ">>> Moving forward one cycle\n";
             moveFirstTripod(0.0f);
             moveSecondTripod(0.0f);
-        }
-        else if (cmd == "rotate_left") {
+            break;
+
+        case Command::RotateLeft:
             std::cout << ">>> Rotating in place left\n";
             rotateFirstTripodInPlaceLeft();
             rotateSecondTripodInPlaceLeft();
-        }
-        else if (cmd == "rotate_right") {
+            break;
+
+        case Command::RotateRight:
             std::cout << ">>> Rotating in place right\n";
             rotateFirstTripodInPlaceRight();
             rotateSecondTripodInPlaceRight();
-        }
-        else if (cmd == "move_backward") {
+            break;
+
+        case Command::MoveBackward:
             std::cout << ">>> Moving backward one cycle\n";
             moveFirstTripod(180.0f);
             moveSecondTripod(180.0f);
-        }
-        else if (cmd == "crab") {
-            if (argc < 3) {
-                std::cerr << "Usage: ./HexapodRobot crab <angle_degrees>\n";
-                closeSerialPort();
-                return 1;
-            }
-            float angle = std::stof(argv[2]);
+            break;
+
+        case Command::Crab:
             std::cout << ">>> Crab mode at " << angle << "°\n";
-            // continuous crab walk until stopped
             while (true) {
                 moveFirstTripod(angle);
                 moveSecondTripod(angle);
                 std::this_thread::sleep_for(std::chrono::milliseconds(200));
             }
-        }
-        else if (cmd == "stop") {
+            // not reached
+            break;
+
+        case Command::Stop:
             std::cout << ">>> Stopping and unpowering servos\n";
-            unstiffenIdleCoxae({
-                0,1,2, 4,5,6, 8,9,10,
-               16,17,18,20,21,22,24,25,26
-            });
+            freezeAllServos();
             closeSerialPort();
             return 0;
-        }
-        else {
-            std::cerr << "Unknown command: " << cmd << "\n";
+
+        case Command::Unknown:
+        default:
+            std::cerr << "Unknown command: " << argv[1] << "\n";
             closeSerialPort();
             return 1;
-        }
-
-        // allow movement to finish one cycle
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
-        closeSerialPort();
     }
 
+    // Așteptăm finalizarea mișcării și închidem portul
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    closeSerialPort();
     return 0;
 }

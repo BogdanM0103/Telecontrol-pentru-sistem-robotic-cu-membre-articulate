@@ -29,3 +29,5 @@ void rotateFirstTripodInPlaceRight();
 void rotateSecondTripodInPlaceRight();
 
 void unstiffenIdleCoxae(const std::initializer_list<int>& channels);
+
+void freezeAllServos();

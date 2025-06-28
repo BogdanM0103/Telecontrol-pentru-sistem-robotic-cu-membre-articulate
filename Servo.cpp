@@ -26,6 +26,24 @@ void unstiffenIdleCoxae(const std::initializer_list<int>& channels) {
     }
 }
 
+// Freeze (unpower) all hexapod servos so they hold no torque.
+void freezeAllServos() {
+    // list of the 18 SSC-32 channels used for the six legs
+    const std::initializer_list<int> channels = {
+        0, 1, 2,    // middle-left leg
+        4, 5, 6,    // high-left leg
+        8, 9, 10,   // low-left leg
+        16, 17, 18, // high-right leg
+        20, 21, 22, // middle-right leg
+        24, 25, 26  // low-right leg
+    };
+
+    for (int ch : channels) {
+        disableServo(ch);                                      // stop pulses on that channel :contentReference[oaicite:0]{index=0}
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+}
+
 int degreesToPulseWidth(int degrees) {
     if (degrees < 0) degrees = 0;
     if (degrees > 180) degrees = 180;
