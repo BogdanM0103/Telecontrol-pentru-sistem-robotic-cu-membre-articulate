@@ -8,35 +8,43 @@
 int serialPortFD = -1;
 
 bool openSerialPort(const char* port, int baudRate) {
-    serialPortFD = open(port, O_RDWR | O_NOCTTY | O_NDELAY);
-
-    if (serialPortFD == -1) {
+    // Deschidem portul pentru citire+scriere, fără să-l facem controlling‐tty
+    int fd = open(port, O_RDWR | O_NOCTTY);
+    if (fd < 0) {
         std::cerr << "Failed to open port: " << port << std::endl;
         return false;
     }
 
-    termios options;
-    tcgetattr(serialPortFD, &options);
+    // Preluăm atributele curente
+    struct termios tty;
+    if (tcgetattr(fd, &tty) != 0) {
+        close(fd);
+        std::cerr << "tcgetattr failed\n";
+        return false;
+    }
 
-    cfsetispeed(&options, baudRate);
-    cfsetospeed(&options, baudRate);
+    // Setăm viteza de comunicare
+    cfsetispeed(&tty, baudRate);
+    cfsetospeed(&tty, baudRate);
 
-    options.c_cflag |= (CLOCAL | CREAD);
-    options.c_cflag &= ~PARENB;
-    options.c_cflag &= ~CSTOPB;
-    options.c_cflag &= ~CSIZE;
-    options.c_cflag |= CS8;
-    options.c_cflag &= ~CRTSCTS;
+    // Păstrăm CLOCAL+CREAD (ignore modem lines + enable receiver)
+    tty.c_cflag |= CLOCAL | CREAD;
 
-    options.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
-    options.c_iflag &= ~(IXON | IXOFF | IXANY);
-    options.c_oflag &= ~OPOST;
+    // Configurează portul în raw mode (8N1, fără flow‐control, fără echo etc.)
+    cfmakeraw(&tty);
 
-    tcsetattr(serialPortFD, TCSANOW, &options);
+    // Aplicăm imediat noile atribute
+    if (tcsetattr(fd, TCSANOW, &tty) != 0) {
+        close(fd);
+        std::cerr << "tcsetattr failed\n";
+        return false;
+    }
 
+    serialPortFD = fd;
     std::cout << "Serial port opened: " << port << std::endl;
     return true;
 }
+
 
 void closeSerialPort() {
     if (serialPortFD != -1) {

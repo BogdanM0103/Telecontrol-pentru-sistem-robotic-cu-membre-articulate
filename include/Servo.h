@@ -14,6 +14,8 @@ int degreesToPulseWidth(int degrees);
 
 void moveServo(int channel1, int channel2, int channel3, double degrees1, double degrees2, double degrees3);
 
+void disableServo(int channel);
+
 void moveFirstTripod(double angleDeg);
 
 void moveSecondTripod(double angleDeg);
@@ -31,3 +33,10 @@ void rotateSecondTripodInPlaceRight();
 void unstiffenIdleCoxae(const std::initializer_list<int>& channels);
 
 void freezeAllServos();
+
+void adjustTorsoHeight(double newZ);
+
+void standUpToWalkingHeight(double fromZ    = -160.0,
+                            double toZ      = -100.0,
+                            int    steps    = 10,
+                            int    delayMs  = 50);

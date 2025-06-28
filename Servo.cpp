@@ -44,6 +44,42 @@ void freezeAllServos() {
     }
 }
 
+void adjustTorsoHeight(double newZ) {
+    assignCoordinatesCoxa();
+
+    // 2) Lista picioarelor: poziția actuală (Point) și cele 3 canale servo
+    std::vector<std::tuple<Point, int, int, int>> legs = {
+        { HL,  4,  5,  6 },   // picior spate stânga (HL)
+        { ML,  0,  1,  2 },   // mijloc stânga (ML)
+        { LL,  8,  9, 10 },   // faţă stânga (LL)
+        { HR, 16, 17, 18 },   // spate dreapta (HR)
+        { MR, 20, 21, 22 },   // mijloc dreapta (MR)
+        { LR, 24, 25, 26 }    // faţă dreapta (LR)
+    };
+
+    // 3) Pentru fiecare picior, înlocuiește coordonata Z și calculează unghiurile
+    for (auto const& [footPos, ch1, ch2, ch3] : legs) {
+        Point target = footPos;
+        target.z = newZ;                       // aplică noul nivel al corpului
+        Angles a = posToAngle(target);         // cinemată inverse: poziție → unghiuri
+        moveServo(ch1, ch2, ch3,             // trimite
+                  a.J1, a.J2, a.J3);           // comanda celor 3 servouri
+    }
+}
+
+void standUpToWalkingHeight(double fromZ,
+                            double toZ,
+                            int    steps,
+                            int    delayMs)
+{
+    for (int i = 0; i <= steps; ++i) {
+        // Linear interpolation between fromZ and toZ
+        double z = fromZ + (toZ - fromZ) * (static_cast<double>(i) / steps);
+        adjustTorsoHeight(z);
+        std::this_thread::sleep_for(std::chrono::milliseconds(delayMs));
+    }
+}
+
 int degreesToPulseWidth(int degrees) {
     if (degrees < 0) degrees = 0;
     if (degrees > 180) degrees = 180;
