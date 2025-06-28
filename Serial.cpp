@@ -8,14 +8,13 @@
 int serialPortFD = -1;
 
 bool openSerialPort(const char* port, int baudRate) {
-    // Deschidem portul pentru citire+scriere, fără să-l facem controlling‐tty
     int fd = open(port, O_RDWR | O_NOCTTY);
     if (fd < 0) {
         std::cerr << "Failed to open port: " << port << std::endl;
         return false;
     }
 
-    // Preluăm atributele curente
+
     struct termios tty;
     if (tcgetattr(fd, &tty) != 0) {
         close(fd);
@@ -23,7 +22,6 @@ bool openSerialPort(const char* port, int baudRate) {
         return false;
     }
 
-    // Setăm viteza de comunicare
     cfsetispeed(&tty, baudRate);
     cfsetospeed(&tty, baudRate);
 
@@ -54,8 +52,7 @@ void closeSerialPort() {
     }
 }
 
-// Send a zero-pulse to “turn off” the servo on that channel.
-// (Most controllers interpret pulse==0 as “stop pulsing.”)
+
 void disableServo(int channel) {
     if (serialPortFD == -1) {
         std::cerr << "Serial port not open.\n";

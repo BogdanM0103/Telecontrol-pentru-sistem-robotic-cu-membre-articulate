@@ -10,7 +10,7 @@ UDP_IP      = "0.0.0.0"   # Listen on all interfaces
 UDP_PORT    = 6006          # Must match server.py UDP_PORT
 REMOTE_BIN  = "/home/bogdan/Desktop/Hexapod/cmake-build-debug/cmake-build-debug/cmake-build-debug/HexapodRobot"
 # Stop removed from SIMPLE_CMDS to intercept it separately
-SIMPLE_CMDS = {"forward", "rotate_left", "rotate_right", "move_backward"}  # stop removed so it's handled separately
+SIMPLE_CMDS = {"forward", "rotate_left", "rotate_right", "move_backward", "get_up", "sit_down"}  # stop removed so it's handled separately
 # ───────────────────────────────────────────────────────────────────────────────
 
 # Set up logging

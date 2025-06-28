@@ -16,5 +16,5 @@ void assignCoordinatesCoxa() {
     LL = {-70, -121.24, 0};
     HR = { 70,  121.24, 0};
     MR = {140,    0.00, 0};
-    LR = { 70, -121.24, 0};  // fixed typo from original: should be +70
+    LR = { 70, -121.24, 0};
 }

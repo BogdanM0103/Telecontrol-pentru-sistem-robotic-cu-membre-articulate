@@ -6,10 +6,8 @@
 #pragma once
 #include <initializer_list>
 
-// channel 0–31, degrees 0–180
 void moveServo(int channel, int degrees);
 
-// if you need direct pulse-width mapping
 int degreesToPulseWidth(int degrees);
 
 void moveServo(int channel1, int channel2, int channel3, double degrees1, double degrees2, double degrees3);
@@ -33,10 +31,3 @@ void rotateSecondTripodInPlaceRight();
 void unstiffenIdleCoxae(const std::initializer_list<int>& channels);
 
 void freezeAllServos();
-
-void adjustTorsoHeight(double newZ);
-
-void standUpToWalkingHeight(double fromZ    = -160.0,
-                            double toZ      = -100.0,
-                            int    steps    = 10,
-                            int    delayMs  = 50);

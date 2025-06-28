@@ -8,10 +8,8 @@
 
 #include "Types.h"
 
-// Given a local foot Point, compute joint angles
 Angles posToAngle(const Point& p);
 
-// Optional utility
 Point rotateXY(const Point& p, double angleRad);
 
 std::vector<float> linespace(float start, float end, int num_points);

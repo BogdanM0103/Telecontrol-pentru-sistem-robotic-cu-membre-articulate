@@ -9,7 +9,6 @@
 #include "include/Kinematics.h"
 #include "LegCoordinates.h"
 
-// Enum pentru comenzile suportate
 enum class Command {
     Forward,
     RotateLeft,
@@ -20,7 +19,6 @@ enum class Command {
     Unknown
 };
 
-// Convertim string-ul în Command
 Command parseCommand(const std::string& s) {
     std::string cmd = s;
     std::transform(cmd.begin(), cmd.end(), cmd.begin(), ::tolower);
@@ -41,11 +39,13 @@ int main(int argc, char* argv[]) {
                   << "  ./HexapodRobot rotate_right\n"
                   << "  ./HexapodRobot move_backward\n"
                   << "  ./HexapodRobot crab <angle_degrees>\n"
+                  << "  ./HexapodRobot get_up\n"
+                  << "  ./HexapodRobot sit_down\n"
                   << "  ./HexapodRobot stop\n";
         return 1;
     }
 
-    // Deschidem portul serial pe unul dintre cele două dispozitive
+    // Deschidem portul serial pe /dev/ttyUSB0 sau /dev/ttyUSB1
     if (!openSerialPort("/dev/ttyUSB0", B115200) &&
         !openSerialPort("/dev/ttyUSB1", B115200)) {
         std::cerr << "Error: could not open serial port\n";
@@ -55,7 +55,6 @@ int main(int argc, char* argv[]) {
     Command cmd = parseCommand(argv[1]);
     float angle = 0.0f;
 
-    // Pentru comanda 'crab' citim unghiul suplimentar
     if (cmd == Command::Crab) {
         if (argc < 3) {
             std::cerr << "Usage: ./HexapodRobot crab <angle_degrees>\n";
