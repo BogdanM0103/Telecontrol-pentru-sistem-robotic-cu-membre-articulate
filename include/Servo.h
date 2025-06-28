@@ -4,6 +4,7 @@
 
 // Servo.h
 #pragma once
+#include <initializer_list>
 
 // channel 0–31, degrees 0–180
 void moveServo(int channel, int degrees);
@@ -26,3 +27,5 @@ void rotateSecondTripodInPlaceLeft();
 void rotateFirstTripodInPlaceRight();
 
 void rotateSecondTripodInPlaceRight();
+
+void unstiffenIdleCoxae(const std::initializer_list<int>& channels);

@@ -14,8 +14,17 @@
 #include "include/Gait.h"
 #include "include/Kinematics.h"
 #include "include/Serial.h"
+#include "include/Servo.h"
 
 constexpr double DEG2RAD = M_PI/180.0;
+
+// Disable (unstiffen) each idle coxa servo channel
+void unstiffenIdleCoxae(const std::initializer_list<int>& channels) {
+    for (int ch : channels) {
+        disableServo(ch);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+}
 
 int degreesToPulseWidth(int degrees) {
     if (degrees < 0) degrees = 0;
@@ -189,7 +198,6 @@ void moveServo(int channel1, int channel2, int channel3, double degrees1, double
 void moveFirstTripod(double angleDeg) {
     assignCoordinatesCoxa();
 
-
     // stroke parameters
     const double S = 60.0, T = 60.0;
     const int    n = 10;             // points per segment
@@ -205,13 +213,15 @@ void moveFirstTripod(double angleDeg) {
     auto pathML = makeFootCycle(S, T, n, -S/2.0);
     auto pathMR = makeFootCycle(S, T, n, +S/2.0);
 
+    unstiffenIdleCoxae({4, 21, 16});
+
     for (size_t i = 0; i < pathML.size(); ++i) {
         // Leg A (channels 0,1,2)  → ML at –45°
         Point pA = rotateXY(pathML[i], (-45.0 * DEG2RAD) + offsetRad);
         Angles aA = posToAngle(pA);
 
         // Leg B (channels 20,21,22) → MR at  0°
-        Point pB = rotateXY(pathMR[i], (  0.0 * DEG2RAD) + offsetRad);
+        Point pB = rotateXY(pathMR[i], (  0.0 * DEG2RAD) + offsetRad); // curba Bezier este inversată
         Angles aB = posToAngle(pB);
 
         // Leg C (channels 8,9,10)  → ML at +45°
@@ -222,6 +232,7 @@ void moveFirstTripod(double angleDeg) {
         moveServo( 0,  1,  2, aA.J1, aA.J2, aA.J3);
         moveServo(20, 21, 22, aB.J1, aB.J2, aB.J3);
         moveServo( 8,  9, 10, aC.J1, aC.J2, aC.J3);
+
 
         // one sleep for all three legs
         std::this_thread::sleep_for(
@@ -243,15 +254,17 @@ void moveSecondTripod(double angleDeg) {
 
     double offsetRad = angleDeg * DEG2RAD;
 
+    unstiffenIdleCoxae({0, 8, 20});
+
     for (size_t i = 0; i < pathML.size(); ++i) {
         // HL (4,5,6) at –45° (forward, dipping)
         Point pD = rotateXY(pathML[i], (-45.0 * DEG2RAD) + offsetRad);
         Angles aD = posToAngle(pD);
 
         // HR (16,17,18) at –45°, reverse direction by flipping X
-        Point reversedHR = pathMR[i];
-        reversedHR.x = -reversedHR.x;
-        Point pE  = rotateXY(reversedHR, 0.0 + offsetRad);
+        Point reversedHR = pathMR[i]; // curba bezier este inversă
+        //reversedHR.x = -reversedHR.x;
+        Point pE  = rotateXY(reversedHR, 180.0 + offsetRad);
         Angles aE = posToAngle(pE);
 
         // LR (24,25,26) at +45° (forward, lifting)
@@ -283,6 +296,8 @@ void rotateFirstTripodInPlaceLeft() {
     //  - front/lift for MR leg (liftZ positive)
     auto pathML = makeFootCycle(S, T, n, -S/2.0);
     auto pathMR = makeFootCycle(S, T, n, +S/2.0);
+
+    unstiffenIdleCoxae({4, 21, 16});
 
     for (size_t i = 0; i < pathML.size(); ++i) {
         // Leg A (channels 0,1,2)  → ML at –45°
@@ -319,6 +334,8 @@ void rotateSecondTripodInPlaceLeft() {
 
     auto pathML = makeFootCycle(S, T, n, -S/2.0);  // HL (dip)
     auto pathMR = makeFootCycle(S, T, n, +S/2.0);  // HR and LR (lift)
+
+    unstiffenIdleCoxae({0, 8, 20});
 
     for (size_t i = 0; i < pathML.size(); ++i) {
         // HL (4,5,6) at –45° (forward, dipping)
@@ -361,6 +378,8 @@ void rotateFirstTripodInPlaceRight() {
     auto pathML = makeFootCycle(S, T, n, -S/2.0);
     auto pathMR = makeFootCycle(S, T, n, +S/2.0);
 
+    unstiffenIdleCoxae({4, 21, 16});
+
     for (size_t i = 0; i < pathML.size(); ++i) {
         // Leg A (channels 0,1,2)  → ML at –45°
         Point pA = rotateXY(pathML[i], DEG2RAD);
@@ -398,6 +417,8 @@ void rotateSecondTripodInPlaceRight() {
 
     auto pathML = makeFootCycle(S, T, n, -S/2.0);  // HL (dip)
     auto pathMR = makeFootCycle(S, T, n, +S/2.0);  // HR and LR (lift)
+
+    unstiffenIdleCoxae({0, 8, 20});
 
     for (size_t i = 0; i < pathML.size(); ++i) {
         // HL (4,5,6) at –45° (forward, dipping)

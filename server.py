@@ -11,143 +11,156 @@ PI_PORT = 6006              # Must match udp_server.py UDP_PORT
 def index():
     return '''
     <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-      <title>Hexapod Control</title>
-      <style>
-        body {
-          font-family: Arial, sans-serif;
-          display: flex;
-          justify-content: center;
-          align-items: flex-start;
-          height: 100vh;
-          background-color: #f1f1f1;
-          margin: 0;
-          padding: 20px;
-        }
-        .control-box, .joystick-box {
-          background: #fff;
-          border: 2px solid #ccc;
-          border-radius: 12px;
-          padding: 20px;
-          box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        .control-box {
-          margin-right: 40px;
-          text-align: center;
-        }
-        .control-box button {
-          font-size: 32px;
-          width: 80px; height: 80px;
-          margin: 5px;
-          border: none; border-radius: 8px;
-          background-color: #007bff; color: white;
-          cursor: pointer;
-        }
-        .control-box button:hover { background-color: #0056b3; }
-        .joystick-box {
-          width: 320px; height: 380px;
-          position: relative;
-        }
-        #joystickZone {
-          position: relative;
-          width: 300px; height: 300px;
-          margin: 0 auto;
-          background: #e9ecef;
-          border: 2px solid #ccc;
-          border-radius: 50%;
-          user-select: none;
-        }
-        #joystickHandle {
-          position: absolute;
-          width: 60px; height: 60px;
-          background: #28a745; border-radius: 50%;
-          left: 50%; top: 50%;
-          transform: translate(-50%, -50%);
-          pointer-events: none;
-        }
-        #angleDisplay {
-          text-align: center;
-          margin-top: 10px;
-          font-size: 18px;
-        }
-      </style>
-    </head>
-    <body>
-      <div class="control-box">
-        <form method="POST" action="/cmd">
-          <div><button name="cmd" value="forward">↑</button></div>
-          <div style="margin-top:20px;">
-            <button name="cmd" value="rotate_left">←</button>
-            <button name="cmd" value="rotate_right">→</button>
-          </div>
-          <div style="margin-top:20px;">
-            <button name="cmd" value="move_backward">↓</button>
-          </div>
-        </form>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Hexapod Control</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      height: 100vh;
+      background-color: #f1f1f1;
+      margin: 0;
+      padding: 20px;
+    }
+    .control-box, .arrow-box {
+      background: #fff;
+      border: 2px solid #ccc;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .control-box {
+      margin-right: 40px;
+      text-align: center;
+    }
+    .control-box button {
+      font-size: 32px;
+      width: 80px; height: 80px;
+      margin: 5px;
+      border: none; border-radius: 8px;
+      background-color: #007bff; color: white;
+      cursor: pointer;
+    }
+    .control-box button:hover { background-color: #0056b3; }
+    .arrow-box {
+      width: 300px; height: 300px;
+      position: relative;
+      margin: 0 auto 20px;
+      padding: 0;
+      text-align: center;
+    }
+    #arrow {
+      width: 0;
+      height: 0;
+      border-left: 25px solid transparent;
+      border-right: 25px solid transparent;
+      border-bottom: 100px solid #e74c3c;
+      position: absolute;
+      top: 50%; left: 50%;
+      transform-origin: center top;
+      transform: translate(-50%, -50%) rotate(0deg);
+      cursor: grab;
+    }
+    #arrowAngleDisplay {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 18px;
+    }
+    #arrowControls {
+      text-align: center;
+      margin-top: 10px;
+    }
+    #arrowControls button {
+      font-size: 16px;
+      padding: 8px 16px;
+      margin: 0 5px;
+      border: none;
+      border-radius: 6px;
+      background-color: #28a745;
+      color: white;
+      cursor: pointer;
+    }
+    #arrowControls button.stop {
+      background-color: #dc3545;
+    }
+  </style>
+</head>
+<body>
+  <div class="control-box">
+    <form method="POST" action="/cmd">
+      <div><button name="cmd" value="forward">↑</button></div>
+      <div style="margin-top:20px;">
+        <button name="cmd" value="rotate_left">←</button>
+        <button name="cmd" value="rotate_right">→</button>
       </div>
-
-      <div class="joystick-box">
-        <div id="joystickZone">
-          <div id="joystickHandle"></div>
-        </div>
-        <div id="angleDisplay">Angle: –°, Power: –%</div>
+      <div style="margin-top:20px;">
+        <button name="cmd" value="move_backward">↓</button>
       </div>
+    </form>
+  </div>
 
-      <script>
-        const UDP_PORT = 6006;
+  <div class="arrow-box">
+    <div id="arrow"></div>
+  </div>
+  <div id="arrowAngleDisplay">Arrow Angle: 0°</div>
+  <div id="arrowControls">
+    <button id="startArrow">Start</button>
+    <button id="stopArrow" class="stop">Stop</button>
+  </div>
 
-        const zone   = document.getElementById('joystickZone');
-        const handle = document.getElementById('joystickHandle');
-        const disp   = document.getElementById('angleDisplay');
-        const radius = zone.offsetWidth / 2;
-        let dragging = false;
+  <script>
+    // Arrow spin and control logic
+    const arrow = document.getElementById('arrow');
+    const arrowDisp = document.getElementById('arrowAngleDisplay');
+    let arrowDragging = false;
+    let currentAngle = 0;
 
-        function sendJoystick(angle, power) {
-          fetch('/joystick', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ angle, power })
-          }).catch(console.error);
-        }
+    arrow.addEventListener('mousedown', () => {
+      arrowDragging = true;
+      arrow.style.cursor = 'grabbing';
+    });
+    document.addEventListener('mouseup', () => {
+      if (arrowDragging) {
+        arrowDragging = false;
+        arrow.style.cursor = 'grab';
+      }
+    });
+    document.addEventListener('mousemove', e => {
+      if (!arrowDragging) return;
+      const box = arrow.parentElement.getBoundingClientRect();
+      const cx = box.left + box.width/2;
+      const cy = box.top + box.height/2;
+      const dx = e.clientX - cx;
+      const dy = e.clientY - cy;
+      let ang = Math.atan2(dy, dx) * 180/Math.PI + 90;
+      ang = (ang + 360) % 360;
+      currentAngle = Math.round(ang);
+      arrow.style.transform = `translate(-50%, -50%) rotate(${currentAngle}deg)`;
+      arrowDisp.textContent = `Arrow Angle: ${currentAngle}°`;
+    });
 
-        zone.addEventListener('mousedown', () => { dragging = true; });
-        document.addEventListener('mouseup', () => {
-          if (!dragging) return;
-          dragging = false;
-          handle.style.left = '50%';
-          handle.style.top  = '50%';
-          disp.textContent = 'Stopped';
-          sendJoystick(-1, 0);
-        });
-        document.addEventListener('mousemove', e => {
-          if (!dragging) return;
-          const rect = zone.getBoundingClientRect();
-          let x = e.clientX - rect.left;
-          let y = e.clientY - rect.top;
-          let dx = x - radius, dy = y - radius;
-          let dist = Math.hypot(dx, dy);
-          let maxDist = radius - handle.offsetWidth/2;
-          if (dist > maxDist) {
-            const r = maxDist / dist;
-            dx *= r; dy *= r;
-            dist = maxDist;
-          }
-          handle.style.left = `${dx + radius - handle.offsetWidth/2}px`;
-          handle.style.top  = `${dy + radius - handle.offsetHeight/2}px`;
+    document.getElementById('startArrow').addEventListener('click', () => {
+      fetch('/arrow', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'start', angle: currentAngle })
+      }).catch(console.error);
+    });
+    document.getElementById('stopArrow').addEventListener('click', () => {
+      fetch('/arrow', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'stop' })
+      }).catch(console.error);
+    });
+  </script>
+</body>
+</html>
 
-          let ang = Math.atan2(dy, dx) * 180/Math.PI;
-          if (ang < 0) ang += 360;
-          let fromVert = (ang + 90) % 360;
-          let power = Math.round(dist / maxDist * 100);
-
-          disp.textContent = `Angle: ${Math.round(fromVert)}°, Power: ${power}%`;
-          sendJoystick(Math.round(fromVert), power);
-        });
-      </script>
-    </body>
-    </html>
     '''
 
 @app.route('/cmd', methods=['POST'])
@@ -164,17 +177,17 @@ def cmd():
     except Exception as e:
         return f"UDP send failed: {e}", 500
 
-@app.route('/joystick', methods=['POST'])
-def joystick():
+@app.route('/arrow', methods=['POST'])
+def arrow_control():
     data = request.get_json()
-    angle = data.get('angle', -1)
-    power = data.get('power', 0)
-
-    # crab when dragged, stop when released
-    if power <= 0:
+    action = data.get('action')
+    angle = data.get('angle', 0)
+    if action == 'start':
+        cmd = f"crab {angle}"
+    elif action == 'stop':
         cmd = "stop"
     else:
-        cmd = f"crab {angle}"
+        return jsonify(success=False, error="Invalid action"), 400
 
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)

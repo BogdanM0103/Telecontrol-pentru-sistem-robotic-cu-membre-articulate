@@ -3,15 +3,16 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <cstring>
+#include <stdbool.h>
 
 int serialPortFD = -1;
 
-void openSerialPort(const char* port, int baudRate) {
+bool openSerialPort(const char* port, int baudRate) {
     serialPortFD = open(port, O_RDWR | O_NOCTTY | O_NDELAY);
 
     if (serialPortFD == -1) {
         std::cerr << "Failed to open port: " << port << std::endl;
-        return;
+        return false;
     }
 
     termios options;
@@ -34,6 +35,7 @@ void openSerialPort(const char* port, int baudRate) {
     tcsetattr(serialPortFD, TCSANOW, &options);
 
     std::cout << "Serial port opened: " << port << std::endl;
+    return true;
 }
 
 void closeSerialPort() {

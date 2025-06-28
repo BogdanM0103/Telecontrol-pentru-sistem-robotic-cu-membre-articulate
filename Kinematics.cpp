@@ -22,23 +22,6 @@ std::vector<float> linespace(float start, float end, int num_points) {
     return values;
 }
 
-// Transforms global (robot-centered) foot position into leg-local position
-struct Point globalToLocal(struct Point globalFootPos, double baseX, double baseY) {
-    struct Point local;
-    local.x = globalFootPos.x - baseX;
-    local.y = globalFootPos.y - baseY;
-    local.z = globalFootPos.z;
-    return local;
-}
-
-struct Point localToGlobal(const struct Point& localFootPos, double baseX, double baseY) {
-    struct Point global;
-    global.x = localFootPos.x + baseX;
-    global.y = localFootPos.y + baseY;
-    global.z = localFootPos.z;
-    return global;
-}
-
 struct Angles posToAngle(const struct Point& p) {
     double x = p.x;
     double y = p.y;
